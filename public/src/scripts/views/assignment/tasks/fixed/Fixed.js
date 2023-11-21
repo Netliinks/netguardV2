@@ -13,7 +13,7 @@ const getTakFixed= async () => {
     //nombre de la entidad
     const takFixed = await getEntitiesData('Task_');
     console.log(takFixed)
-    const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS');
+    const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS'  &&  `${data.user.userType}`==='GUARD');
     return FCustomer;
 };
 export class Fixed {

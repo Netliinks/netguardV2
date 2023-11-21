@@ -12,7 +12,7 @@ const getTakSporadic= async () => {
     //nombre de la entidad
     const takSporadic = await getEntitiesData('Task_');
     
-    const FCustomer = takSporadic.filter((data) => `${data.customer?.id}` === `${customerId}` &&  `${data.taskType}`==='ESPORADICAS');
+    const FCustomer = takSporadic.filter((data) => `${data.customer?.id}` === `${customerId}` &&  `${data.taskType}`==='ESPORADICAS' &&  `${data.user.userType}`==='GUARD');
     return FCustomer;
 };
 export class Sporadic {

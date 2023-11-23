@@ -480,26 +480,31 @@ export class Fixed {
               let rawExport = JSON.stringify({
                   "filter": {
                       "conditions": [
-                            {
-                              "property": "taskType",
-                              "operator": "=",
-                              "value": `FIJAS`
-                          },
-                          {
-                              "property": "customer.id",
-                              "operator": "=",
-                              "value": `${customerId}`
-                          },
-                          {
-                              "property": "execTime",
-                              "operator": ">=",
-                              "value": `${_values.start.value}`
-                          },
-                          {
-                              "property": "execTime",
-                              "operator": "<=",
-                              "value": `${_values.end.value}`
-                          }
+                        {
+                            "property": "taskType",
+                            "operator": "=",
+                            "value": `FIJAS`
+                        },
+                        {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
+                        },
+                        {
+                            "property": "customer.id",
+                            "operator": "=",
+                            "value": `${customerId}`
+                        },
+                        {
+                            "property": "execTime",
+                            "operator": ">=",
+                            "value": `${_values.start.value}`
+                        },
+                        {
+                            "property": "execTime",
+                            "operator": "<=",
+                            "value": `${_values.end.value}`
+                        }
                       ],
                   },
                   sort: "+execTime",

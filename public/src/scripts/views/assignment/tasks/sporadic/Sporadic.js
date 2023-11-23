@@ -583,26 +583,31 @@ export class Sporadic {
               let rawExport = JSON.stringify({
                   "filter": {
                       "conditions": [
-                            {
-                              "property": "taskType",
-                              "operator": "=",
-                              "value": `ESPORADICAS`
-                          },
-                          {
-                              "property": "customer.id",
-                              "operator": "=",
-                              "value": `${customerId}`
-                          },
-                          {
-                              "property": "execDate",
-                              "operator": ">=",
-                              "value": `${_values.start.value}`
-                          },
-                          {
-                              "property": "execDate",
-                              "operator": "<=",
-                              "value": `${_values.end.value}`
-                          }
+                        {
+                            "property": "taskType",
+                            "operator": "=",
+                            "value": `ESPORADICAS`
+                        },
+                        {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
+                        },
+                        {
+                            "property": "customer.id",
+                            "operator": "=",
+                            "value": `${customerId}`
+                        },
+                        {
+                            "property": "execDate",
+                            "operator": ">=",
+                            "value": `${_values.start.value}`
+                        },
+                        {
+                            "property": "execDate",
+                            "operator": "<=",
+                            "value": `${_values.end.value}`
+                        }
                       ],
                   },
                   sort: "-execDate",

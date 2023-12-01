@@ -16,7 +16,9 @@ const getTakFixed= async () => {
     const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS'  &&  `${data.user.userType}`==='GUARD');
     return FCustomer;
 };
+
 export class Fixed {
+    
     constructor() {
         this.dialogContainer = document.getElementById('app-dialogs');
         this.entityDialogContainer = document.getElementById('entity-editor-container');
@@ -48,8 +50,51 @@ export class Fixed {
         this.searchEntity(tableBody, data);
         new filterDataByHeaderType().filter();
         this.pagination(data, tableRows, currentPage);
+        tableBody
     }
+    openTasksModal(container, data) {
+        const view = document.querySelectorAll('#view-entity');
+            view.forEach((view) => {
+                const entityId = view.dataset.entityid;
+                view.addEventListener('click', () => {
+                    RInterface('Task_', entityId);
+                });
+            });
+           
+        const RInterface = async (entities, entityID) => {
+            const data = await getEntityData(entities, entityID);
+            const dialogContainer = document.getElementById('app-dialogs');
+            dialogContainer.innerHTML = `
+                <div class="dialog_content" id="dialog-content">
+                <div class="dialog">
+                    <div class="dialog_container padding_8" style="width:70%;position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);" id="modal">
+                        <div class="dialog_header" style="text-align:center">
+                            <h2>${data.name}</h2>
+                        </div>
 
+                        <div class="dialog_message padding_8">
+                        <p>${data.description}</p>
+                        </div>
+
+                        <div class="dialog_footer">
+                            <button class="btn btn_primary" id="cancel-modal">Cancelar</button>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+                `;
+            const cancelBtnModal = document.getElementById('cancel-modal');
+            cancelBtnModal.addEventListener('click', (event) => {
+                
+            const dialog = document.getElementById('dialog-content');
+                new CloseDialog().x(dialog);
+        
+            
+            });
+        }
+    }
+        
     load(table, currentPage, data) {
         table.innerHTML = '';
         currentPage--;
@@ -60,6 +105,7 @@ export class Fixed {
             let mensaje = 'No existen datos';
             if(customerId == null){mensaje = 'Seleccione una empresa';}
             let row = document.createElement('tr');
+            
             row.innerHTML = `
         <td>${mensaje}</td>
         <td></td>
@@ -68,24 +114,25 @@ export class Fixed {
             table.appendChild(row);
         }
         else {
+            
             for (let i = 0; i < paginatedItems.length; i++) {
                 let taskFixed = paginatedItems[i];
                 let row = document.createElement('tr');
+                //row.setAttribute("id", `row${i}`);
+                //row.setAttribute("onclick","alerta()")
                 row.innerHTML += `
           <td>${taskFixed.name}</dt>
           
           <td>${taskFixed.execTime}</dt>`;
-          if(taskFixed.isRead == false){
-            
-            row.innerHTML += `<td style="text-align: center;"><i class="fa-solid fa-eye-slash"></i></span></td>`;
-          }
-          else{
-            row.innerHTML += `<td style="text-align: center;"><span><i class="fa-solid fa-eye"></i></span></td>`;
-          } 
+          row.innerHTML += `<td>${taskFixed.isReadDate ?? ''} </dt>`; 
+          row.innerHTML += `<td>${taskFixed.isReadTime ?? ''}</dt>`; 
 
           row.innerHTML += `
 
           <td class="entity_options">
+            <button class="button" id="view-entity" data-entityId="${taskFixed.id}">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
             <button class="button" id="edit-entity" data-entityId="${taskFixed.id}">
               <i class="fa-solid fa-pen"></i>
             </button>
@@ -96,14 +143,17 @@ export class Fixed {
         `;
                 table.appendChild(row);
             }
+            
         }
         this.edit(this.entityDialogContainer, data);
         this.register(); 
         this.remove();
         this.export();
-
-
+        this.openTasksModal(this.content, data);
+               
     }
+    
+    
     
     pagination(items, limitRows, currentPage) {
       const tableBody = document.getElementById('datatable-body');
@@ -127,6 +177,7 @@ export class Fixed {
           return button;
       }
     }
+    
     register() {
         // register entity
         const openEditor = document.getElementById('new-entity');
@@ -152,7 +203,12 @@ export class Fixed {
           <div class="entity_editor_body">
             <div class="material_input">
               <input type="text" id="entity-name" autocomplete="none" required>
-              <label for="entity-name">Generales</label>
+              <label for="entity-name">Título</label>
+            </div>
+            
+            <div class="form_input">
+                <label for="entity-description" class="form_label"></i> Descripción:</label>
+                <textarea id="entity-description" name="entity-description" row="30" class="input_textarea"></textarea>
             </div>
             <div class="form_group">
                 <div class="form_input">
@@ -179,10 +235,15 @@ export class Fixed {
             inputObserver();
            
             this.close();
+            const agregarCeros = (numero) => {
+                return day < 10 ? `0${numero}` : numero;
+              };
             const _fileHandler = document.getElementById('file-handler');
             const registerButton = document.getElementById('register-entity');
             const fecha = new Date();
-            const day = fecha.getDate();
+
+            let day = fecha.getDate();
+            day = agregarCeros(day);
             const month = fecha.getMonth() + 1; 
             const year = fecha.getFullYear();
 
@@ -198,6 +259,7 @@ export class Fixed {
             registerButton.addEventListener('click', async(e) => {
                 e.preventDefault();
                 const name = document.getElementById('entity-name')
+                const description = document.getElementById('entity-description')
                 const executionTime = document.getElementById('execution-time')
                 if(name.value.trim() === '' || name.value.trim() === null){
                   alert('Nombre del consigna fija vacío')
@@ -208,8 +270,8 @@ export class Fixed {
                 else{
                   const inputsCollection = {
                       name: name,
-                      executionTime: executionTime
-                      
+                      executionTime: executionTime,
+                      description : description
                     
                   };
                   let _userInfo = await getUserInfo();
@@ -218,6 +280,7 @@ export class Fixed {
                     const raw = JSON.stringify({
                         "taskType": `FIJAS`,
                         "name": `${inputsCollection.name.value}`,
+                        "description": `${inputsCollection.description.value}`,
                         "execDate": `${dateFormat}`,
                         "user":  {
                             "id": `${_userInfo['attributes']['id']}`
@@ -231,7 +294,7 @@ export class Fixed {
                       
                     });
                   
-                  
+                    console.log(raw)
                     registerEntity(raw, 'Task_');
                     const users = await getEntitiesData('User');
                     const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
@@ -281,16 +344,20 @@ export class Fixed {
 
               <!-- EDITOR BODY -->
               <div class="entity_editor_body">
-                  <div class="material_input">
-                    <input type="text" id="entity-name" class="input_filled" value="${data.name}" >
-                    <label for="entity-name">Nombre</label>
-                  </div>
-                  <div class="form_group">
-                      <div class="form_input">
-                          <label class="form_label" for="execution-time">Hora de ejecución:</label>
-                          <input type="time" class="input_time input_time-execution" id="execution-time" name="execution-time" value="${data.execTime}">
-                      </div>
-                  </div>
+                    <div class="material_input">
+                        <input type="text" id="entity-name" class="input_filled" value="${data.name}" >
+                        <label for="entity-name">Título</label>
+                    </div>
+                    <div class="form_input">
+                        <label for="entity-description" class="form_label"></i> Descripción:</label>
+                        <textarea id="entity-description" name="entity-description" row="30" class="input_textarea">${data.description}</textarea>
+                    </div>
+                    <div class="form_group">
+                        <div class="form_input">
+                            <label class="form_label" for="execution-time">Hora de ejecución:</label>
+                            <input type="time" class="input_time input_time-execution" id="execution-time" name="execution-time" value="${data.execTime}">
+                        </div>
+                    </div>
               </div>
               <!-- END EDITOR BODY -->
 
@@ -311,6 +378,8 @@ export class Fixed {
             // @ts-ignore
             name: document.getElementById('entity-name'),
             // @ts-ignore
+            description: document.getElementById('entity-description'),
+            // @ts-ignore
             execTime: document.getElementById('execution-time'),
             // @ts-ignore
            
@@ -330,9 +399,12 @@ export class Fixed {
                   let raw = JSON.stringify({
                       // @ts-ignore
                       "name": `${$value.name.value}`,
+                      "description": `${$value.description.value}`,
                       // @ts-ignore
                       "execTime": `${$value.execTime.value}`,
-                      "isRead": false
+                      "isRead": false,
+                      "isReadDate": '',
+                      "isReadTime":  '',
                   });
                   update(raw);
                 }

@@ -34,7 +34,13 @@ export const tableLayout = `
         <th><span data-type="execution-time">
           Hora <i class="fa-regular fa-filter"></i>
         </span></th>
-        <th class="header_filled"><span data-type="view-task">Visualización <i class="fa-regular fa-filter"></i></span></th>
+       
+        <th><span data-type="isReadDate">
+        Fecha Lectura <i class="fa-regular fa-filter"></i>
+        </span></th>
+        <th><span data-type="isReadTim">
+        Hora Lectura <i class="fa-regular fa-filter"></i>
+        </span></th>
         <th class="header_filled"></th>
       </tr></thead>
       <tbody id="datatable-body" class="datatable_body">

@@ -1246,7 +1246,7 @@ h1, h2, h3, h4, h5, h6 {
 .material_input label i {
   color: #9a9ab0;
 }
-.material_input input {
+.material_input input{
   display: block;
   width: 100%;
   height: 100%;

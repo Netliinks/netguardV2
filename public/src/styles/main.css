@@ -1972,3 +1972,15 @@ i {
 .fa-eye{
   color: #2c3aba;
 }
+.contenedor {
+  display: flex;
+  justify-content: space-between;
+  width: 300px; /* Puedes ajustar este valor según tus necesidades */
+  border: 1px solid #ccc; /* Añade un borde para visualización */
+  padding: 10px;
+}
+
+.fecha, .hora {
+  flex: 1;
+  text-align: center;
+}

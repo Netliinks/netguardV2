@@ -66,23 +66,28 @@ export class Fixed {
             const dialogContainer = document.getElementById('app-dialogs');
             dialogContainer.innerHTML = `
                 <div class="dialog_content" id="dialog-content">
-                <div class="dialog">
-                    <div class="dialog_container padding_8" style="width:70%;position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);" id="modal">
-                        <div class="dialog_header" style="text-align:center">
-                            <h2>${data.name}</h2>
-                        </div>
+                        <div class="dialog">
+                            <div class="dialog_container padding_8" style="width:70%;position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);" id="modal">
+                                <div class="dialog_header" style="display: flex;justify-content: center;">
+                                    <h2 style="margin: 0;">${data.name}</h2>
+                                </div>
 
-                        <div class="dialog_message padding_8">
-                        <p>${data.description}</p>
-                        </div>
-
-                        <div class="dialog_footer">
-                            <button class="btn btn_primary" id="cancel-modal">Cancelar</button>
-                            
-                        </div>
+                                <div class="dialog_message padding_8" style="text-align: center;">
+                                    <p style="text-align: justify;">${data.description ?? ""}</p>
+                                </div>
+                                <div class="dialog_message padding_8" style="display: flex; justify-content: center;">
+                                   
+                                    <div style="padding:20px;background:#dfdfdf""><span><i class="fa-solid fa-clock"  style="font-size:15px"></i> ${data.execTime}</span></div>
+                                    
+                                </div>
+                                
+                                <div class="dialog_footer" style="text-align: center;">
+                                    <button class="btn btn_primary" id="cancel-modal">Cerrar</button>
+                                    
+                                </div>
+                            </div>
                     </div>
                 </div>
-            </div>
                 `;
             const cancelBtnModal = document.getElementById('cancel-modal');
             cancelBtnModal.addEventListener('click', (event) => {

@@ -133,7 +133,7 @@ export class Fixed {
         };
     }
     
-    async render() {
+    /*async render() {
         this.content.innerHTML = '';
         this.content.innerHTML = tableLayout;
         const tableBody = document.getElementById('datatable-body');
@@ -145,6 +145,21 @@ export class Fixed {
         new filterDataByHeaderType().filter();
         this.pagination(data, tableRows, currentPage);
         tableBody
+    }*/
+    async render(offset, actualPage, search) {
+        infoPage.offset = offset;
+        infoPage.currentPage = actualPage;
+        infoPage.search = search;
+        this.datatableContainer.innerHTML = '';
+        this.datatableContainer.innerHTML = tableLayout;
+        const tableBody = document.getElementById('datatable-body');
+        tableBody.innerHTML = '.Cargando...';
+        let data = await getTakFixed();
+        tableBody.innerHTML = tableLayoutTemplate.repeat(tableRows);
+        this.load(tableBody, currentPage, data);
+        this.searchEntity(tableBody /*, data*/);
+        new filterDataByHeaderType().filter();
+        this.pagination(data, tableRows, infoPage.currentPage);
     }
     openTasksModal(container, data) {
         const view = document.querySelectorAll('#view-entity');

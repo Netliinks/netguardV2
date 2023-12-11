@@ -95,7 +95,7 @@ export class Fixed {
         this.dialogContainer = document.getElementById('app-dialogs');
         this.entityDialogContainer = document.getElementById('entity-editor-container');
         this.content = document.getElementById('datatable-container');
-        this.searchEntity = async (tableBody, data) => {
+        /*this.searchEntity = async (tableBody, data) => {
             const search = document.getElementById('search');
             await search.addEventListener('keyup', () => {
                 const arrayData = data.filter((user) => `${user.name}`
@@ -107,6 +107,17 @@ export class Fixed {
                     filteredResult = tableRows;
                 this.load(tableBody, currentPage, result);
                 this.pagination(result, tableRows, currentPage);
+            });
+        };*/
+        this.searchEntity = async (tableBody /*, data: any*/) => {
+            const search = document.getElementById('search');
+            const btnSearch = document.getElementById('btnSearch');
+            search.value = infoPage.search;
+            await search.addEventListener('keyup', () => {
+              
+            });
+            btnSearch.addEventListener('click', async () => {
+                new Fixed().render(Config.offset, Config.currentPage, search.value.toLowerCase().trim());
             });
         };
     }
@@ -233,26 +244,64 @@ export class Fixed {
     
     
     pagination(items, limitRows, currentPage) {
-      const tableBody = document.getElementById('datatable-body');
-      const paginationWrapper = document.getElementById('pagination-container');
-      paginationWrapper.innerHTML = '';
-      let pageCount;
-      pageCount = Math.ceil(items.length / limitRows);
-      let button;
-      for (let i = 1; i < pageCount + 1; i++) {
-          button = setupButtons(i, items, currentPage, tableBody, limitRows);
-          paginationWrapper.appendChild(button);
-      }
-      function setupButtons(page, items, currentPage, tableBody, limitRows) {
-          const button = document.createElement('button');
-          button.classList.add('pagination_button');
-          button.innerText = page;
-          button.addEventListener('click', () => {
-              currentPage = page;
-              new TakFixed().load(tableBody, page, items);
-          });
-          return button;
-      }
+        const tableBody = document.getElementById('datatable-body');
+        const paginationWrapper = document.getElementById('pagination-container');
+        paginationWrapper.innerHTML = '';
+        let pageCount;
+        pageCount = Math.ceil(infoPage.count / limitRows);
+        let button;
+        if (pageCount <= Config.maxLimitPage) {
+            for (let i = 1; i < pageCount + 1; i++) {
+                button = setupButtons(i /*, items, currentPage, tableBody, limitRows*/);
+                paginationWrapper.appendChild(button);
+            }
+            fillBtnPagination(currentPage, Config.colorPagination);
+        }
+        else {
+            pagesOptions(items, currentPage);
+        }
+        function setupButtons(page /*, items, currentPage, tableBody, limitRows*/) {
+            const button = document.createElement('button');
+            button.classList.add('pagination_button');
+            button.setAttribute("name", "pagination-button");
+            button.setAttribute("id", "btnPag" + page);
+            button.innerText = page;
+            button.addEventListener('click', () => {
+                infoPage.offset = Config.tableRows * (page - 1);
+                currentPage = page;
+                new Employees().render(infoPage.offset, currentPage, infoPage.search);
+            });
+            return button;
+        }
+        function pagesOptions(items, currentPage) {
+            paginationWrapper.innerHTML = '';
+            let pages = pageNumbers(pageCount, Config.maxLimitPage, currentPage);
+            const prevButton = document.createElement('button');
+            prevButton.classList.add('pagination_button');
+            prevButton.innerText = "<<";
+            paginationWrapper.appendChild(prevButton);
+            const nextButton = document.createElement('button');
+            nextButton.classList.add('pagination_button');
+            nextButton.innerText = ">>";
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i] > 0 && pages[i] <= pageCount) {
+                    button = setupButtons(pages[i]);
+                    paginationWrapper.appendChild(button);
+                }
+            }
+            paginationWrapper.appendChild(nextButton);
+            fillBtnPagination(currentPage, Config.colorPagination);
+            setupButtonsEvents(prevButton, nextButton);
+        }
+        function setupButtonsEvents(prevButton, nextButton) {
+            prevButton.addEventListener('click', () => {
+                new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
+            });
+            nextButton.addEventListener('click', () => {
+                infoPage.offset = Config.tableRows * (pageCount - 1);
+                new Fixed().render(infoPage.offset, pageCount, infoPage.search);
+            });
+        }
     }
     
     register() {
@@ -372,7 +421,7 @@ export class Fixed {
                     });
                   
                     
-                    registerEntity(raw, 'Task_'); 
+                   
                     let rawUser = JSON.stringify({
                         "filter": {
                             "conditions": [
@@ -385,6 +434,11 @@ export class Fixed {
                                     "property": "userType",
                                     "operator": "=",
                                     "value": `GUARD`
+                                },
+                                {
+                                    "property": "state.name",
+                                    "operator": "=",
+                                    "value": `Enabled`
                                 },
                                 {
                                     "property": "token",
@@ -401,12 +455,19 @@ export class Fixed {
                         const envioPush = await postNotificationPush(data);
                     }
                    
-                
-                    setTimeout(() => {
-                        const container = document.getElementById('entity-editor-container');
-                        new CloseDialog().x(container);
-                        new Fixed().render();
-                    }, 1000);
+                    const reg = async (raw) => {
+                        registerEntity(raw, 'Task_')
+                            .then((res) => {
+                            setTimeout(async () => {
+                                //let data = await getUsers();
+                                const tableBody = document.getElementById('datatable-body');
+                                const container = document.getElementById('entity-editor-container');
+                                new CloseDialog().x(container);
+                                new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
+                            }, 1000);
+                        });
+                    };
+                    
                 }
             });
           
@@ -505,21 +566,26 @@ export class Fixed {
                   update(raw);
                 }
           });
-          const update = async(raw) => {
+          /**
+             * Update entity and execute functions to finish defying user
+             * @param raw
+             */
+          const update = async (raw) => {
             updateEntity('Task_', entityId, raw)
                 .then((res) => {
                 setTimeout(async () => {
                     let tableBody;
                     let container;
                     let data;
-                    data = await getTakFixed();
-                    new CloseDialog()
-                        .x(container =
-                        document.getElementById('entity-editor-container'));
-                    new Fixed().load(tableBody
-                        = document.getElementById('datatable-body'), currentPage, data);
+                    tableBody = document.getElementById('datatable-body');
+                    container = document.getElementById('entity-editor-container');
+                    //data = await getUsers();
+                    new CloseDialog().x(container);
+                    new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
                 }, 100);
             });
+        
+          
             let rawUser = JSON.stringify({
                 "filter": {
                     "conditions": [
@@ -532,6 +598,11 @@ export class Fixed {
                             "property": "userType",
                             "operator": "=",
                             "value": `GUARD`
+                        },
+                        {
+                            "property": "state.name",
+                            "operator": "=",
+                            "value": `Enabled`
                         },
                         {
                             "property": "token",
@@ -579,23 +650,27 @@ export class Fixed {
             </div>
           </div>
         `;
-                // delete button
-                // cancel button
-                // dialog content
-                const deleteButton = document.getElementById('delete');
-                const cancelButton = document.getElementById('cancel');
-                const dialogContent = document.getElementById('dialog-content');
-                deleteButton.onclick = () => {
-                    deleteEntity('Task_', entityId)
-                        .then(res => new Fixed().render());
+        const deleteButton = document.getElementById('delete');
+        const cancelButton = document.getElementById('cancel');
+        const dialogContent = document.getElementById('dialog-content');
+        deleteButton.onclick = async() => {
+            deleteEntity('Task_', entityId)
+            .then((res) => {
+                setTimeout(async () => {
+                    //let data = await getUsers();
+                    const tableBody = document.getElementById('datatable-body');
                     new CloseDialog().x(dialogContent);
-                };
-                cancelButton.onclick = () => {
-                    new CloseDialog().x(dialogContent);
-                };
+                    new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
+                }, 1000);
             });
-        });
-    }
+        };
+        cancelButton.onclick = () => {
+            new CloseDialog().x(dialogContent);
+            //this.render();
+        };
+    });
+});
+}
     export = () => {
    
       const exportNotes = document.getElementById('export-entities');

@@ -611,6 +611,11 @@ export class Sporadic {
                             "value": `${customerId}`
                         },
                         {
+                            "property": "state.name",
+                            "operator": "=",
+                            "value": `Enabled`
+                        },
+                        {
                             "property": "userType",
                             "operator": "=",
                             "value": `GUARD`

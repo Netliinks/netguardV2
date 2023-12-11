@@ -1,5 +1,5 @@
 // @filename: Sporadic.ts
-import { deleteEntity, getEntitiesData, registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
+import { deleteEntity, getEntitiesData,getFilterEntityCount, registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
 import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
@@ -8,12 +8,80 @@ import { exportSporadicCsv, exportSporadicPdf, exportSporadicXls } from "../../.
 const tableRows = Config.tableRows;
 const currentPage = Config.currentPage;
 const customerId = localStorage.getItem('customer_id');
+let infoPage = {
+    count: 0,
+    offset: Config.offset,
+    currentPage: currentPage,
+    search: ""
+};
+let dataPage;
 const getTakSporadic= async () => {
     //nombre de la entidad
-    const takSporadic = await getEntitiesData('Task_');
+    //const takSporadic = await getEntitiesData('Task_');
     
-    const FCustomer = takSporadic.filter((data) => `${data.customer?.id}` === `${customerId}` &&  `${data.taskType}`==='ESPORADICAS' &&  `${data.user.userType}`==='GUARD');
-    return FCustomer;
+    //const FCustomer = takSporadic.filter((data) => `${data.customer?.id}` === `${customerId}` &&  `${data.taskType}`==='ESPORADICAS' &&  `${data.user.userType}`==='GUARD');
+    //return FCustomer;
+    let raw = JSON.stringify({
+        "filter": {
+            "conditions": [
+                {
+                    "property": "customer.id",
+                    "operator": "=",
+                    "value": `${customerId}`
+                },
+                {
+                    "property": "taskType",
+                    "operator": "=",
+                    "value": `ESPORADICAS`
+                },
+                {
+                    "property": "user.userType",
+                    "operator": "=",
+                    "value": `GUARD`
+                }
+            ],
+        },
+       
+        limit: Config.tableRows,
+        offset: infoPage.offset,
+        fetchPlan: 'full',
+    });
+    if (infoPage.search != "") {
+        raw = JSON.stringify({
+            "filter": {
+                "conditions": [
+                    {
+                        "group": "OR",
+                        "conditions": [
+                            {
+                                "property": "title",
+                                "operator": "contains",
+                                "value": `${infoPage.search.toLowerCase()}`
+                            },
+                            {
+                                "property": "content",
+                                "operator": "contains",
+                                "value": `${infoPage.search.toLowerCase()}`
+                            }
+                        ]
+                    },
+                    {
+                        "property": "customer.id",
+                        "operator": "=",
+                        "value": `${customerId}`
+                    }
+                ]
+            },
+            sort: "-createdDate",
+            limit: Config.tableRows,
+            offset: infoPage.offset,
+            fetchPlan: 'full',
+        });
+    }
+    infoPage.count = await getFilterEntityCount("Task_", raw);
+    dataPage = await getFilterEntityData("Task_", raw);
+    return dataPage;
+
 };
 export class Sporadic {
     constructor() {
@@ -193,10 +261,10 @@ export class Sporadic {
 
         <!-- EDITOR BODY -->
         <div class="entity_editor_body">
-          <div class="material_input">
-            <input type="text" id="entity-name" autocomplete="none" required>
-            <label for="entity-name">Título</label>
-          </div>
+            <div class="material_input">
+                <input type="text" id="entity-name" autocomplete="none" required>
+                <label for="entity-name">Título</label>
+            </div>
             
             <div class="form_input">
                 <label for="entity-description" class="form_label"></i> Descripción:</label>
@@ -204,18 +272,18 @@ export class Sporadic {
             </div>
          
           
-          <div class="form_group">
-              <div class="form_input">
-                  <label class="form_label" for="execution-date">Fecha de Ejecución:</label>
-                  <input type="date" class="input_time input_execution-date" id="execution-date" name="execution-date">
-              </div>
-              <div class="form_input">
-                  <label class="form_label" for="execution-time">Hora de Ejecución:</label>
-                  <input type="time" class="input_time input_time-execution" id="execution-time" name="execution-time">
-              </div>
+            <div class="form_group">
+                <div class="form_input">
+                    <label class="form_label" for="execution-date">Fecha de Ejecución:</label>
+                    <input type="date" class="input_time input_execution-date" id="execution-date" name="execution-date">
+                </div>
+                <div class="form_input">
+                    <label class="form_label" for="execution-time">Hora de Ejecución:</label>
+                    <input type="time" class="input_time input_time-execution" id="execution-time" name="execution-time">
+                </div>
 
              
-          </div> 
+            </div> 
          
           
           
@@ -265,9 +333,7 @@ export class Sporadic {
               let dateExec = new Date(executionDate.value); 
               let horusInstant = new Date( `${dateFormat}T${hourFormat}`);
               let horusExec = new Date(`${dateFormat}T${executionTime.value}`);
-              //console.log(hourFormat)
-              //console.log(executionTime.value)
-               
+              
               if(name.value.trim() === '' || name.value.trim() === null){
                 alert('Nombre del consigna general vacío')
               }
@@ -322,16 +388,35 @@ export class Sporadic {
     
 
                 registerEntity(raw, 'Task_');
-                const users = await getEntitiesData('User');
-                const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
-                for(let i =0; i<FUsers.length;i++){
-                    if(FUsers[i]['token']!=undefined){
-                        const data = {"token":FUsers[i]['token'],"title": "Específica", "body":`${inputsCollection.name.value}`  }
-                        const envioPush = await postNotificationPush(data);
-
-                    }  
+                //const users = await getEntitiesData('User');
+                //const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
+                let rawUser = JSON.stringify({
+                    "filter": {
+                        "conditions": [
+                            {
+                                "property": "customer.id",
+                                "operator": "=",
+                                "value": `${customerId}`
+                            },
+                            {
+                                "property": "userType",
+                                "operator": "=",
+                                "value": `GUARD`
+                            },
+                            {
+                                "property": "token",
+                                "operator": "<>",
+                                "value": ``
+                            }
+                        ],
+                    },
+                });
+                const dataUser= await getFilterEntityData("User", rawUser);                           
+                for(let i =0; i<dataUser.length;i++){
+                    
+                    const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${inputsCollection.name.value}`  }
+                    const envioPush = await postNotificationPush(data);
                 }
-               
                 setTimeout(() => {
                     const container = document.getElementById('entity-editor-container');
                     new CloseDialog().x(container);
@@ -517,14 +602,32 @@ export class Sporadic {
                         = document.getElementById('datatable-body'), currentPage, data);
                 }, 100);
             });
-            const users = await getEntitiesData('User');
-            const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
-            for(let i =0; i<FUsers.length;i++){
-                if(FUsers[i]['token']!=undefined){
-                    const data = {"token":FUsers[i]['token'],"title": "Específica", "body":`${$value.name.value}` }
-                    const envioPush = await postNotificationPush(data);
+            let rawUser = JSON.stringify({
+                "filter": {
+                    "conditions": [
+                        {
+                            "property": "customer.id",
+                            "operator": "=",
+                            "value": `${customerId}`
+                        },
+                        {
+                            "property": "userType",
+                            "operator": "=",
+                            "value": `GUARD`
+                        },
+                        {
+                            "property": "token",
+                            "operator": "<>",
+                            "value": ``
+                        }
+                    ],
+                },
+            });
+            const dataUser= await getFilterEntityData("User", rawUser);                           
+            for(let i =0; i<dataUser.length;i++){
                 
-                }  
+                const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${$value.name.value}`  }
+                const envioPush = await postNotificationPush(data);
             }
         };
         

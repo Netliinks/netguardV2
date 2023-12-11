@@ -1,5 +1,5 @@
 // @filename: Fixed.ts
-import { deleteEntity, getEntitiesData, registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
+import { deleteEntity, getEntitiesData,  getFilterEntityCount,registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
 import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
@@ -8,13 +8,85 @@ import { exportFixedCsv, exportFixedPdf, exportFixedXls } from "../../../../expo
 
 const tableRows = Config.tableRows;
 const currentPage = Config.currentPage;
+
 const customerId = localStorage.getItem('customer_id');
+let infoPage = {
+    count: 0,
+    offset: Config.offset,
+    currentPage: currentPage,
+    search: ""
+};
+let dataPage;
 const getTakFixed= async () => {
     //nombre de la entidad
-    const takFixed = await getEntitiesData('Task_');
-    console.log(takFixed)
-    const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS'  &&  `${data.user.userType}`==='GUARD');
-    return FCustomer;
+    //const takFixed = await getEntitiesData('Task_');
+    //console.log(takFixed)
+    //const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS'  &&  `${data.user.userType}`==='GUARD');
+    //return FCustomer;
+
+        //const notesRaw = await getEntitiesData('Note');
+        //const notes = notesRaw.filter((data) => data.customer?.id === `${customerId}`);
+        let raw = JSON.stringify({
+            "filter": {
+                "conditions": [
+                    {
+                        "property": "customer.id",
+                        "operator": "=",
+                        "value": `${customerId}`
+                    },
+                    {
+                        "property": "taskType",
+                        "operator": "=",
+                        "value": `FIJAS`
+                    },
+                    {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
+                    }
+                ],
+            },
+           
+            limit: Config.tableRows,
+            offset: infoPage.offset,
+            fetchPlan: 'full',
+        });
+        if (infoPage.search != "") {
+            raw = JSON.stringify({
+            "filter": {
+                "conditions": [
+                    {
+                        "group": "OR",
+                        "conditions": [
+                            {
+                                "property": "title",
+                                "operator": "contains",
+                                "value": `${infoPage.search.toLowerCase()}`
+                            },
+                            {
+                                "property": "content",
+                                "operator": "contains",
+                                "value": `${infoPage.search.toLowerCase()}`
+                            }
+                        ]
+                    },
+                    {
+                        "property": "customer.id",
+                        "operator": "=",
+                        "value": `${customerId}`
+                    }
+                ]
+            },
+            sort: "-createdDate",
+            limit: Config.tableRows,
+            offset: infoPage.offset,
+            fetchPlan: 'full',
+        });
+        }
+        infoPage.count = await getFilterEntityCount("Task_", raw);
+        dataPage = await getFilterEntityData("Task_", raw);
+        return dataPage;
+   
 };
 
 export class Fixed {
@@ -299,17 +371,36 @@ export class Fixed {
                       
                     });
                   
-                    console.log(raw)
-                    registerEntity(raw, 'Task_');
-                    const users = await getEntitiesData('User');
-                    const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
-                    for(let i =0; i<FUsers.length;i++){
-                        if(FUsers[i]['token']!=undefined){
-                            const data = {"token":FUsers[i]['token'],"title": "General", "body":`${inputsCollection.name.value}` }
-                            const envioPush = await postNotificationPush(data);
-                            console.log(envioPush)
-                        }  
+                    
+                    registerEntity(raw, 'Task_'); 
+                    let rawUser = JSON.stringify({
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "property": "customer.id",
+                                    "operator": "=",
+                                    "value": `${customerId}`
+                                },
+                                {
+                                    "property": "userType",
+                                    "operator": "=",
+                                    "value": `GUARD`
+                                },
+                                {
+                                    "property": "token",
+                                    "operator": "<>",
+                                    "value": ``
+                                }
+                            ],
+                        },
+                    });
+                    const dataUser= await getFilterEntityData("User", rawUser);                           
+                    for(let i =0; i<dataUser.length;i++){
+                        
+                        const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${inputsCollection.name.value}`  }
+                        const envioPush = await postNotificationPush(data);
                     }
+                   
                 
                     setTimeout(() => {
                         const container = document.getElementById('entity-editor-container');
@@ -429,14 +520,32 @@ export class Fixed {
                         = document.getElementById('datatable-body'), currentPage, data);
                 }, 100);
             });
-            const users = await getEntitiesData('User');
-            const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
-            for(let i =0; i<FUsers.length;i++){
-                if(FUsers[i]['token']!=undefined){
-                    const data = {"token":FUsers[i]['token'],"title": "General", "body":`${$value.name.value}` }
-                    const envioPush = await postNotificationPush(data);
-                    console.log(envioPush)
-                }  
+            let rawUser = JSON.stringify({
+                "filter": {
+                    "conditions": [
+                        {
+                            "property": "customer.id",
+                            "operator": "=",
+                            "value": `${customerId}`
+                        },
+                        {
+                            "property": "userType",
+                            "operator": "=",
+                            "value": `GUARD`
+                        },
+                        {
+                            "property": "token",
+                            "operator": "<>",
+                            "value": ``
+                        }
+                    ],
+                },
+            });
+            const dataUser= await getFilterEntityData("User", rawUser);                           
+            for(let i =0; i<dataUser.length;i++){
+                
+                const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${$value.name.value}`  }
+                const envioPush = await postNotificationPush(data);
             }
         };
         
@@ -447,7 +556,7 @@ export class Fixed {
         const remove = document.querySelectorAll('#remove-entity');
         remove.forEach((remove) => {
             const entityId = remove.dataset.entityid;
-            console.log(entityId)
+            
             remove.addEventListener('click', () => {
                 this.dialogContainer.style.display = 'flex';
                 this.dialogContainer.innerHTML = `
@@ -488,7 +597,7 @@ export class Fixed {
         });
     }
     export = () => {
-      console.log('entre')
+   
       const exportNotes = document.getElementById('export-entities');
       exportNotes.addEventListener('click', async() => {
           this.dialogContainer.style.display = 'block';

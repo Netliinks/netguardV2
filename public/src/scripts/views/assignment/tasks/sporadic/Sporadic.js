@@ -41,7 +41,7 @@ const getTakSporadic= async () => {
                 }
             ],
         },
-       
+        sort: "+execDate",
         limit: Config.tableRows,
         offset: infoPage.offset,
         fetchPlan: 'full',
@@ -840,7 +840,7 @@ export class Sporadic {
                         }
                       ],
                   },
-                  sort: "-execDate",
+                  sort: "+execDate",
                   fetchPlan: 'full',
               });
               const sporadic = await getFilterEntityData("Task_", rawExport); 

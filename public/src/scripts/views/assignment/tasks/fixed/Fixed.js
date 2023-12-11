@@ -59,12 +59,17 @@ const getTakFixed= async () => {
                         "group": "OR",
                         "conditions": [
                             {
-                                "property": "title",
+                                "property": "name",
                                 "operator": "contains",
                                 "value": `${infoPage.search.toLowerCase()}`
                             },
                             {
-                                "property": "content",
+                                "property": "execDate",
+                                "operator": "contains",
+                                "value": `${infoPage.search.toLowerCase()}`
+                            },
+                            {
+                                "property": "execTime",
                                 "operator": "contains",
                                 "value": `${infoPage.search.toLowerCase()}`
                             }
@@ -77,7 +82,7 @@ const getTakFixed= async () => {
                     }
                 ]
             },
-            sort: "-createdDate",
+            sort: "+execTime",
             limit: Config.tableRows,
             offset: infoPage.offset,
             fetchPlan: 'full',
@@ -387,6 +392,32 @@ export class Fixed {
                 const name = document.getElementById('entity-name')
                 const description = document.getElementById('entity-description')
                 const executionTime = document.getElementById('execution-time')
+
+                const inputsCollection = {
+                    name: name,
+                    executionTime: executionTime,
+                    description : description
+                  
+                };
+                let _userInfo = await getUserInfo();
+                const customerId = localStorage.getItem('customer_id');
+                
+                  const raw = JSON.stringify({
+                      "taskType": `FIJAS`,
+                      "name": `${inputsCollection.name.value}`,
+                      "description": `${inputsCollection.description.value}`,
+                      "execDate": `${dateFormat}`,
+                      "user":  {
+                          "id": `${_userInfo['attributes']['id']}`
+                      },   
+                      "customer": {
+                          "id": `${customerId}`
+                      },
+                      "execTime":`${inputsCollection.executionTime.value}`,
+                      "startTime": `${hourFormat}`,
+                      "startDate": `${dateFormat}`,
+                    
+                  });
                 if(name.value.trim() === '' || name.value.trim() === null){
                   alert('Nombre del consigna fija vacío')
                 }
@@ -394,34 +425,7 @@ export class Fixed {
                   alert('Debe especificar la hora de ejecución de la consigna')
                 }
                 else{
-                  const inputsCollection = {
-                      name: name,
-                      executionTime: executionTime,
-                      description : description
-                    
-                  };
-                  let _userInfo = await getUserInfo();
-                  const customerId = localStorage.getItem('customer_id');
-                  
-                    const raw = JSON.stringify({
-                        "taskType": `FIJAS`,
-                        "name": `${inputsCollection.name.value}`,
-                        "description": `${inputsCollection.description.value}`,
-                        "execDate": `${dateFormat}`,
-                        "user":  {
-                            "id": `${_userInfo['attributes']['id']}`
-                        },   
-                        "customer": {
-                            "id": `${customerId}`
-                        },
-                        "execTime":`${inputsCollection.executionTime.value}`,
-                        "startTime": `${hourFormat}`,
-                        "startDate": `${dateFormat}`,
-                      
-                    });
-                  
-                    
-                   
+                    reg(raw);
                     let rawUser = JSON.stringify({
                         "filter": {
                             "conditions": [
@@ -455,23 +459,24 @@ export class Fixed {
                         const envioPush = await postNotificationPush(data);
                     }
                    
-                    const reg = async (raw) => {
-                        registerEntity(raw, 'Task_')
-                            .then((res) => {
-                            setTimeout(async () => {
-                                //let data = await getUsers();
-                                const tableBody = document.getElementById('datatable-body');
-                                const container = document.getElementById('entity-editor-container');
-                                new CloseDialog().x(container);
-                                new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
-                            }, 1000);
-                        });
-                    };
-                    
-                }
+                } 
+
+                 
             });
           
             
+              const reg = async (raw) => {
+                  registerEntity(raw, 'Task_')
+                      .then((res) => {
+                      setTimeout(async () => {
+                          //let data = await getUsers();
+                          const tableBody = document.getElementById('datatable-body');
+                          const container = document.getElementById('entity-editor-container');
+                          new CloseDialog().x(container);
+                          new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
+                      }, 1000);
+                  });
+              };    
         };
        
     }

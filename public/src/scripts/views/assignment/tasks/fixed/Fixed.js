@@ -46,7 +46,7 @@ const getTakFixed= async () => {
                     }
                 ],
             },
-           
+            sort: "+execTime",
             limit: Config.tableRows,
             offset: infoPage.offset,
             fetchPlan: 'full',
@@ -60,12 +60,6 @@ const getTakFixed= async () => {
                         "conditions": [
                             {
                                 "property": "name",
-                                "operator": "contains",
-                                "value": `${infoPage.search.toLowerCase()}`
-                            },
-                            
-                            {
-                                "property": "execTime",
                                 "operator": "contains",
                                 "value": `${infoPage.search.toLowerCase()}`
                             }
@@ -150,8 +144,8 @@ export class Fixed {
         infoPage.offset = offset;
         infoPage.currentPage = actualPage;
         infoPage.search = search;
-        this.datatableContainer.innerHTML = '';
-        this.datatableContainer.innerHTML = tableLayout;
+        this.content.innerHTML = '';
+        this.content.innerHTML = tableLayout;
         const tableBody = document.getElementById('datatable-body');
         tableBody.innerHTML = '.Cargando...';
         let data = await getTakFixed();

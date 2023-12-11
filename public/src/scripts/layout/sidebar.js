@@ -283,7 +283,7 @@ renders() {
       new TasksTime().render();
     });*/
     document.getElementById('render-fixed')?.addEventListener('click', () => {
-      new Fixed().render();
+      new Fixed().render(Config.offset, Config.currentPage, "");
     });
      // render Tasks Sporadic
     document.getElementById('render-sporadic')?.addEventListener('click', () => {

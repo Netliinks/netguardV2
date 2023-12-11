@@ -1,6 +1,6 @@
 // @filename: Sporadic.ts
 import { deleteEntity, getEntitiesData,getFilterEntityCount, registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType } from "../../../../tools.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType,fillBtnPagination  } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
@@ -54,15 +54,11 @@ const getTakSporadic= async () => {
                         "group": "OR",
                         "conditions": [
                             {
-                                "property": "title",
+                                "property": "name",
                                 "operator": "contains",
                                 "value": `${infoPage.search.toLowerCase()}`
                             },
-                            {
-                                "property": "content",
-                                "operator": "contains",
-                                "value": `${infoPage.search.toLowerCase()}`
-                            }
+                            
                         ]
                     },
                     {
@@ -72,7 +68,7 @@ const getTakSporadic= async () => {
                     }
                 ]
             },
-            sort: "-createdDate",
+            sort: "+execDate",
             limit: Config.tableRows,
             offset: infoPage.offset,
             fetchPlan: 'full',
@@ -88,23 +84,24 @@ export class Sporadic {
         this.dialogContainer = document.getElementById('app-dialogs');
         this.entityDialogContainer = document.getElementById('entity-editor-container');
         this.content = document.getElementById('datatable-container');
-        this.searchEntity = async (tableBody, data) => {
+        this.searchEntity = async (tableBody /*, data: any*/) => {
             const search = document.getElementById('search');
+            const btnSearch = document.getElementById('btnSearch');
+            search.value = infoPage.search;
             await search.addEventListener('keyup', () => {
-                const arrayData = data.filter((user) => `${user.name}`
-                    .toLowerCase()
-                    .includes(search.value.toLowerCase()));
-                let filteredResult = arrayData.length;
-                let result = arrayData;
-                if (filteredResult >= tableRows)
-                    filteredResult = tableRows;
-                this.load(tableBody, currentPage, result);
-                this.pagination(result, tableRows, currentPage);
+              
+            });
+            btnSearch.addEventListener('click', async () => {
+                new Sporadic().render(Config.offset, Config.currentPage, search.value.toLowerCase().trim());
             });
         };
     }
     
-    async render() {
+    
+    async render(offset, actualPage, search) {
+        infoPage.offset = offset;
+        infoPage.currentPage = actualPage;
+        infoPage.search = search;
         this.content.innerHTML = '';
         this.content.innerHTML = tableLayout;
         const tableBody = document.getElementById('datatable-body');
@@ -112,9 +109,9 @@ export class Sporadic {
         let data = await getTakSporadic();
         tableBody.innerHTML = tableLayoutTemplate.repeat(tableRows);
         this.load(tableBody, currentPage, data);
-        this.searchEntity(tableBody, data);
+        this.searchEntity(tableBody /*, data*/);
         new filterDataByHeaderType().filter();
-        this.pagination(data, tableRows, currentPage);
+        this.pagination(data, tableRows, infoPage.currentPage);
     }
     openTasksModal(container, data) {
       const view = document.querySelectorAll('#view-entity');
@@ -217,26 +214,64 @@ export class Sporadic {
     }
     
     pagination(items, limitRows, currentPage) {
-      const tableBody = document.getElementById('datatable-body');
-      const paginationWrapper = document.getElementById('pagination-container');
-      paginationWrapper.innerHTML = '';
-      let pageCount;
-      pageCount = Math.ceil(items.length / limitRows);
-      let button;
-      for (let i = 1; i < pageCount + 1; i++) {
-          button = setupButtons(i, items, currentPage, tableBody, limitRows);
-          paginationWrapper.appendChild(button);
-      }
-      function setupButtons(page, items, currentPage, tableBody, limitRows) {
-          const button = document.createElement('button');
-          button.classList.add('pagination_button');
-          button.innerText = page;
-          button.addEventListener('click', () => {
-              currentPage = page;
-              new Sporadic().load(tableBody, page, items);
-          });
-          return button;
-      }
+        const tableBody = document.getElementById('datatable-body');
+        const paginationWrapper = document.getElementById('pagination-container');
+        paginationWrapper.innerHTML = '';
+        let pageCount;
+        pageCount = Math.ceil(infoPage.count / limitRows);
+        let button;
+        if (pageCount <= Config.maxLimitPage) {
+            for (let i = 1; i < pageCount + 1; i++) {
+                button = setupButtons(i /*, items, currentPage, tableBody, limitRows*/);
+                paginationWrapper.appendChild(button);
+            }
+            fillBtnPagination(currentPage, Config.colorPagination);
+        }
+        else {
+            pagesOptions(items, currentPage);
+        }
+        function setupButtons(page /*, items, currentPage, tableBody, limitRows*/) {
+            const button = document.createElement('button');
+            button.classList.add('pagination_button');
+            button.setAttribute("name", "pagination-button");
+            button.setAttribute("id", "btnPag" + page);
+            button.innerText = page;
+            button.addEventListener('click', () => {
+                infoPage.offset = Config.tableRows * (page - 1);
+                currentPage = page;
+                new Sporadic().render(infoPage.offset, currentPage, infoPage.search);
+            });
+            return button;
+        }
+        function pagesOptions(items, currentPage) {
+            paginationWrapper.innerHTML = '';
+            let pages = pageNumbers(pageCount, Config.maxLimitPage, currentPage);
+            const prevButton = document.createElement('button');
+            prevButton.classList.add('pagination_button');
+            prevButton.innerText = "<<";
+            paginationWrapper.appendChild(prevButton);
+            const nextButton = document.createElement('button');
+            nextButton.classList.add('pagination_button');
+            nextButton.innerText = ">>";
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i] > 0 && pages[i] <= pageCount) {
+                    button = setupButtons(pages[i]);
+                    paginationWrapper.appendChild(button);
+                }
+            }
+            paginationWrapper.appendChild(nextButton);
+            fillBtnPagination(currentPage, Config.colorPagination);
+            setupButtonsEvents(prevButton, nextButton);
+        }
+        function setupButtonsEvents(prevButton, nextButton) {
+            prevButton.addEventListener('click', () => {
+                new Sporadic().render(Config.offset, Config.currentPage, infoPage.search);
+            });
+            nextButton.addEventListener('click', () => {
+                infoPage.offset = Config.tableRows * (pageCount - 1);
+                new Sporadic().render(infoPage.offset, pageCount, infoPage.search);
+            });
+        }
     }
     register() {
       // register entity
@@ -329,11 +364,38 @@ export class Sporadic {
               const executionDate = document.getElementById('execution-date')
               const executionTime = document.getElementById('execution-time')
               const description= document.getElementById('entity-description')
-              let dateToday = new Date(dateFormat);
-              let dateExec = new Date(executionDate.value); 
-              let horusInstant = new Date( `${dateFormat}T${hourFormat}`);
-              let horusExec = new Date(`${dateFormat}T${executionTime.value}`);
+              const inputsCollection = {
+                name: name,
+                executionDate: executionDate,
+                executionTime: executionTime,
+                description : description
               
+              };
+              let _userInfo = await getUserInfo();
+              const customerId = localStorage.getItem('customer_id');
+              
+              console.log(inputsCollection.name.value)
+              
+                let dateToday = new Date(dateFormat);
+                let dateExec = new Date(executionDate.value); 
+                let horusInstant = new Date( `${dateFormat}T${hourFormat}`);
+                let horusExec = new Date(`${dateFormat}T${executionTime.value}`);
+               const raw = JSON.stringify({
+                    "taskType": `ESPORADICAS`,
+                    "name": `${inputsCollection.name.value}`,
+                    "description": `${inputsCollection.description.value}`,
+                    "execDate": `${inputsCollection.executionDate.value}`,
+                    "user":  {
+                    "id": `${_userInfo['attributes']['id']}`
+                    },   
+                    "customer": {
+                        "id": `${customerId}`
+                    },
+                    "execTime":`${inputsCollection.executionTime.value}`,
+                    "startTime": `${hourFormat}`,
+                    "startDate": `${dateFormat}`,
+                    
+                });
               if(name.value.trim() === '' || name.value.trim() === null){
                 alert('Nombre del consigna general vacío')
               }
@@ -353,43 +415,7 @@ export class Sporadic {
                 
               }
               else{
-               
-                const inputsCollection = {
-                    name: name,
-                    description: description,
-                    executionDate: executionDate,
-                    executionTime: executionTime
-                    // @ts-ignore
-           
-                  
-                };
-                let _userInfo = await getUserInfo();
-                const customerId = localStorage.getItem('customer_id');
-                
-                console.log(inputsCollection.name.value)
-                const raw = JSON.stringify({
-                    "taskType": `ESPORADICAS`,
-                    "name": `${inputsCollection.name.value}`,
-                    "description": `${inputsCollection.description.value}`,
-                    "execDate": `${inputsCollection.executionDate.value.trim()}`,
-                    "user":  {
-                      "id": `${_userInfo['attributes']['id']}`
-                    },   
-                    "customer": {
-                        "id": `${customerId}`
-                    },
-                    "execTime":`${inputsCollection.executionTime.value}`,
-                    "startTime": `${hourFormat}`,
-                    "startDate": `${dateFormat}`,
-                    
-                });
-                
-
-    
-
-                registerEntity(raw, 'Task_');
-                //const users = await getEntitiesData('User');
-                //const FUsers = users.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.userType}` === `GUARD`);
+                reg(raw);
                 let rawUser = JSON.stringify({
                     "filter": {
                         "conditions": [
@@ -402,6 +428,11 @@ export class Sporadic {
                                 "property": "userType",
                                 "operator": "=",
                                 "value": `GUARD`
+                            },
+                            {
+                                "property": "state.name",
+                                "operator": "=",
+                                "value": `Enabled`
                             },
                             {
                                 "property": "token",
@@ -417,18 +448,28 @@ export class Sporadic {
                     const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${inputsCollection.name.value}`  }
                     const envioPush = await postNotificationPush(data);
                 }
-                setTimeout(() => {
-                    const container = document.getElementById('entity-editor-container');
-                    new CloseDialog().x(container);
-                    new Sporadic().render();
-                }, 1000);
-              }
-          });
+               
+            } 
+
+             
+        });
+      
         
-          
-      };
-     
-    }
+          const reg = async (raw) => {
+              registerEntity(raw, 'Task_')
+                  .then((res) => {
+                  setTimeout(async () => {
+                      //let data = await getUsers();
+                      const tableBody = document.getElementById('datatable-body');
+                      const container = document.getElementById('entity-editor-container');
+                      new CloseDialog().x(container);
+                      new Sporadic().render(Config.offset, Config.currentPage, infoPage.search);
+                  }, 1000);
+              });
+          };    
+    };
+   
+}
     edit(container, data) {
       // Edit entity
         const fecha = new Date();
@@ -587,21 +628,26 @@ export class Sporadic {
               update(raw);
             }
           });
-          const update = async (raw)  => {
+          /**
+             * Update entity and execute functions to finish defying user
+             * @param raw
+             */
+          const update = async (raw) => {
             updateEntity('Task_', entityId, raw)
                 .then((res) => {
                 setTimeout(async () => {
                     let tableBody;
                     let container;
                     let data;
-                    data = await getTakSporadic();
-                    new CloseDialog()
-                        .x(container =
-                        document.getElementById('entity-editor-container'));
-                    new Sporadic().load(tableBody
-                        = document.getElementById('datatable-body'), currentPage, data);
+                    tableBody = document.getElementById('datatable-body');
+                    container = document.getElementById('entity-editor-container');
+                    //data = await getUsers();
+                    new CloseDialog().x(container);
+                    new Sporadic().render(infoPage.offset, infoPage.currentPage, infoPage.search);
                 }, 100);
             });
+        
+          
             let rawUser = JSON.stringify({
                 "filter": {
                     "conditions": [
@@ -611,14 +657,14 @@ export class Sporadic {
                             "value": `${customerId}`
                         },
                         {
-                            "property": "state.name",
-                            "operator": "=",
-                            "value": `Enabled`
-                        },
-                        {
                             "property": "userType",
                             "operator": "=",
                             "value": `GUARD`
+                        },
+                        {
+                            "property": "state.name",
+                            "operator": "=",
+                            "value": `Enabled`
                         },
                         {
                             "property": "token",
@@ -671,13 +717,20 @@ export class Sporadic {
                 const deleteButton = document.getElementById('delete');
                 const cancelButton = document.getElementById('cancel');
                 const dialogContent = document.getElementById('dialog-content');
-                deleteButton.onclick = () => {
+                deleteButton.onclick = async() => {
                     deleteEntity('Task_', entityId)
-                        .then(res => new Sporadic().render());
-                    new CloseDialog().x(dialogContent);
+                    .then((res) => {
+                        setTimeout(async () => {
+                            //let data = await getUsers();
+                            const tableBody = document.getElementById('datatable-body');
+                            new CloseDialog().x(dialogContent);
+                            new Sporadic().render(infoPage.offset, infoPage.currentPage, infoPage.search);
+                        }, 1000);
+                    });
                 };
                 cancelButton.onclick = () => {
                     new CloseDialog().x(dialogContent);
+                    //this.render();
                 };
             });
         });

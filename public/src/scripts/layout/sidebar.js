@@ -287,7 +287,7 @@ renders() {
     });
      // render Tasks Sporadic
     document.getElementById('render-sporadic')?.addEventListener('click', () => {
-      new Sporadic().render();
+      new Sporadic().render(Config.offset, Config.currentPage, "");
     });
 
     // render Procedures

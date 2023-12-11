@@ -289,7 +289,7 @@ export class Fixed {
             button.addEventListener('click', () => {
                 infoPage.offset = Config.tableRows * (page - 1);
                 currentPage = page;
-                new Employees().render(infoPage.offset, currentPage, infoPage.search);
+                new Fixed().render(infoPage.offset, currentPage, infoPage.search);
             });
             return button;
         }
@@ -470,7 +470,7 @@ export class Fixed {
                     const dataUser= await getFilterEntityData("User", rawUser);                           
                     for(let i =0; i<dataUser.length;i++){
                         
-                        const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${inputsCollection.name.value}`  }
+                        const data = {"token":dataUser[i]['token'],"title": "General", "body":`${inputsCollection.name.value}`  }
                         const envioPush = await postNotificationPush(data);
                     }
                    
@@ -635,7 +635,7 @@ export class Fixed {
             const dataUser= await getFilterEntityData("User", rawUser);                           
             for(let i =0; i<dataUser.length;i++){
                 
-                const data = {"token":dataUser[i]['token'],"title": "Específica", "body":`${$value.name.value}`  }
+                const data = {"token":dataUser[i]['token'],"title": "General", "body":`${$value.name.value}`  }
                 const envioPush = await postNotificationPush(data);
             }
         };

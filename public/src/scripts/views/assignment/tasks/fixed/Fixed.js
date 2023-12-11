@@ -1,6 +1,6 @@
 // @filename: Fixed.ts
 import { deleteEntity, getEntitiesData,  getFilterEntityCount,registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType } from "../../../../tools.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType ,fillBtnPagination} from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
@@ -63,11 +63,7 @@ const getTakFixed= async () => {
                                 "operator": "contains",
                                 "value": `${infoPage.search.toLowerCase()}`
                             },
-                            {
-                                "property": "execDate",
-                                "operator": "contains",
-                                "value": `${infoPage.search.toLowerCase()}`
-                            },
+                            
                             {
                                 "property": "execTime",
                                 "operator": "contains",
@@ -79,6 +75,16 @@ const getTakFixed= async () => {
                         "property": "customer.id",
                         "operator": "=",
                         "value": `${customerId}`
+                    },
+                    {
+                        "property": "taskType",
+                        "operator": "=",
+                        "value": `FIJAS`
+                    },
+                    {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
                     }
                 ]
             },

@@ -292,7 +292,7 @@ renders() {
 
     // render Procedures
     document.getElementById('render-procedures')?.addEventListener('click', () => {
-      new Procedures().render();
+      new Procedures().render(Config.offset, Config.currentPage, "");
     });
   }
 }

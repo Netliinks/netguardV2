@@ -1,6 +1,6 @@
 // @filename: Fixed.ts
-import { deleteEntity, getEntitiesData,  getFilterEntityCount,registerEntity, updateEntity, getEntityData,setFile,getUserInfo,getFile,postNotificationPush,getFilterEntityData } from "../../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType ,fillBtnPagination} from "../../../../tools.js";
+import { deleteEntity, getEntitiesData, getFilterEntityCount, registerEntity, updateEntity, getEntityData, setFile, getUserInfo, getFile, postNotificationPush, getFilterEntityData } from "../../../../endpoints.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, fillBtnPagination } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
@@ -17,42 +17,42 @@ let infoPage = {
     search: ""
 };
 let dataPage;
-const getTakFixed= async () => {
+const getTakFixed = async () => {
     //nombre de la entidad
     //const takFixed = await getEntitiesData('Task_');
     //console.log(takFixed)
     //const FCustomer = takFixed.filter((data) => `${data.customer?.id}` === `${customerId}` && `${data.taskType}`==='FIJAS'  &&  `${data.user.userType}`==='GUARD');
     //return FCustomer;
 
-        //const notesRaw = await getEntitiesData('Note');
-        //const notes = notesRaw.filter((data) => data.customer?.id === `${customerId}`);
-        let raw = JSON.stringify({
-            "filter": {
-                "conditions": [
-                    {
-                        "property": "customer.id",
-                        "operator": "=",
-                        "value": `${customerId}`
-                    },
-                    {
-                        "property": "taskType",
-                        "operator": "=",
-                        "value": `FIJAS`
-                    },
-                    {
-                        "property": "user.userType",
-                        "operator": "=",
-                        "value": `GUARD`
-                    }
-                ],
-            },
-            sort: "+execTime",
-            limit: Config.tableRows,
-            offset: infoPage.offset,
-            fetchPlan: 'full',
-        });
-        if (infoPage.search != "") {
-            raw = JSON.stringify({
+    //const notesRaw = await getEntitiesData('Note');
+    //const notes = notesRaw.filter((data) => data.customer?.id === `${customerId}`);
+    let raw = JSON.stringify({
+        "filter": {
+            "conditions": [
+                {
+                    "property": "customer.id",
+                    "operator": "=",
+                    "value": `${customerId}`
+                },
+                {
+                    "property": "taskType",
+                    "operator": "=",
+                    "value": `FIJAS`
+                },
+                {
+                    "property": "user.userType",
+                    "operator": "=",
+                    "value": `GUARD`
+                }
+            ],
+        },
+        sort: "+execTime",
+        limit: Config.tableRows,
+        offset: infoPage.offset,
+        fetchPlan: 'full',
+    });
+    if (infoPage.search != "") {
+        raw = JSON.stringify({
             "filter": {
                 "conditions": [
                     {
@@ -87,15 +87,15 @@ const getTakFixed= async () => {
             offset: infoPage.offset,
             fetchPlan: 'full',
         });
-        }
-        infoPage.count = await getFilterEntityCount("Task_", raw);
-        dataPage = await getFilterEntityData("Task_", raw);
-        return dataPage;
-   
+    }
+    infoPage.count = await getFilterEntityCount("Task_", raw);
+    dataPage = await getFilterEntityData("Task_", raw);
+    return dataPage;
+
 };
 
 export class Fixed {
-    
+
     constructor() {
         this.dialogContainer = document.getElementById('app-dialogs');
         this.entityDialogContainer = document.getElementById('entity-editor-container');
@@ -119,14 +119,14 @@ export class Fixed {
             const btnSearch = document.getElementById('btnSearch');
             search.value = infoPage.search;
             await search.addEventListener('keyup', () => {
-              
+
             });
             btnSearch.addEventListener('click', async () => {
                 new Fixed().render(Config.offset, Config.currentPage, search.value.toLowerCase().trim());
             });
         };
     }
-    
+
     /*async render() {
         this.content.innerHTML = '';
         this.content.innerHTML = tableLayout;
@@ -157,13 +157,13 @@ export class Fixed {
     }
     openTasksModal(container, data) {
         const view = document.querySelectorAll('#view-entity');
-            view.forEach((view) => {
-                const entityId = view.dataset.entityid;
-                view.addEventListener('click', () => {
-                    RInterface('Task_', entityId);
-                });
+        view.forEach((view) => {
+            const entityId = view.dataset.entityid;
+            view.addEventListener('click', () => {
+                RInterface('Task_', entityId);
             });
-           
+        });
+
         const RInterface = async (entities, entityID) => {
             const data = await getEntityData(entities, entityID);
             const dialogContainer = document.getElementById('app-dialogs');
@@ -194,15 +194,15 @@ export class Fixed {
                 `;
             const cancelBtnModal = document.getElementById('cancel-modal');
             cancelBtnModal.addEventListener('click', (event) => {
-                
-            const dialog = document.getElementById('dialog-content');
+
+                const dialog = document.getElementById('dialog-content');
                 new CloseDialog().x(dialog);
-        
-            
+
+
             });
         }
     }
-        
+
     load(table, currentPage, data) {
         table.innerHTML = '';
         currentPage--;
@@ -211,9 +211,9 @@ export class Fixed {
         let paginatedItems = data.slice(start, end);
         if (data.length === 0) {
             let mensaje = 'No existen datos';
-            if(customerId == null){mensaje = 'Seleccione una empresa';}
+            if (customerId == null) { mensaje = 'Seleccione una empresa'; }
             let row = document.createElement('tr');
-            
+
             row.innerHTML = `
         <td>${mensaje}</td>
         <td></td>
@@ -222,7 +222,7 @@ export class Fixed {
             table.appendChild(row);
         }
         else {
-            
+
             for (let i = 0; i < paginatedItems.length; i++) {
                 let taskFixed = paginatedItems[i];
                 let row = document.createElement('tr');
@@ -232,10 +232,10 @@ export class Fixed {
           <td>${taskFixed.name}</dt>
           
           <td>${taskFixed.execTime}</dt>`;
-          row.innerHTML += `<td>${taskFixed.isReadDate ?? ''} </dt>`; 
-          row.innerHTML += `<td>${taskFixed.isReadTime ?? ''}</dt>`; 
+                row.innerHTML += `<td>${taskFixed.isReadDate ?? ''} </dt>`;
+                row.innerHTML += `<td>${taskFixed.isReadTime ?? ''}</dt>`;
 
-          row.innerHTML += `
+                row.innerHTML += `
 
           <td class="entity_options">
             <button class="button" id="view-entity" data-entityId="${taskFixed.id}">
@@ -251,18 +251,18 @@ export class Fixed {
         `;
                 table.appendChild(row);
             }
-            
+
         }
         this.edit(this.entityDialogContainer, data);
-        this.register(); 
+        this.register();
         this.remove();
         this.export();
         this.openTasksModal(this.content, data);
-               
+
     }
-    
-    
-    
+
+
+
     pagination(items, limitRows, currentPage) {
         const tableBody = document.getElementById('datatable-body');
         const paginationWrapper = document.getElementById('pagination-container');
@@ -323,13 +323,13 @@ export class Fixed {
             });
         }
     }
-    
+
     register() {
         // register entity
         const openEditor = document.getElementById('new-entity');
         openEditor.addEventListener('click', () => {
             renderInterface();
-            
+
         });
         const renderInterface = async () => {
             this.entityDialogContainer.innerHTML = '';
@@ -379,30 +379,30 @@ export class Fixed {
       `;
             // @ts-ignore
             inputObserver();
-           
+
             this.close();
             const agregarCeros = (numero) => {
                 return day < 10 ? `0${numero}` : numero;
-              };
+            };
             const _fileHandler = document.getElementById('file-handler');
             const registerButton = document.getElementById('register-entity');
             const fecha = new Date();
 
             let day = fecha.getDate();
             day = agregarCeros(day);
-            const month = fecha.getMonth() + 1; 
+            const month = fecha.getMonth() + 1;
             const year = fecha.getFullYear();
 
             const dateFormat = year + '-' + month + '-' + day;
-            
+
             const hour = fecha.getHours();
-            const minutes  = fecha.getMinutes();
+            const minutes = fecha.getMinutes();
             const seconds = fecha.getSeconds();
 
             const hourFormat = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-   
-            registerButton.addEventListener('click', async(e) => {
+
+            registerButton.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('entity-name')
                 const description = document.getElementById('entity-description')
@@ -411,35 +411,35 @@ export class Fixed {
                 const inputsCollection = {
                     name: name,
                     executionTime: executionTime,
-                    description : description
-                  
+                    description: description
+
                 };
                 let _userInfo = await getUserInfo();
                 const customerId = localStorage.getItem('customer_id');
-                
-                  const raw = JSON.stringify({
-                      "taskType": `FIJAS`,
-                      "name": `${inputsCollection.name.value}`,
-                      "description": `${inputsCollection.description.value}`,
-                      "execDate": `${dateFormat}`,
-                      "user":  {
-                          "id": `${_userInfo['attributes']['id']}`
-                      },   
-                      "customer": {
-                          "id": `${customerId}`
-                      },
-                      "execTime":`${inputsCollection.executionTime.value}`,
-                      "startTime": `${hourFormat}`,
-                      "startDate": `${dateFormat}`,
-                    
-                  });
-                if(name.value.trim() === '' || name.value.trim() === null){
-                  alert('Nombre del consigna fija vacío')
+
+                const raw = JSON.stringify({
+                    "taskType": `FIJAS`,
+                    "name": `${inputsCollection.name.value}`,
+                    "description": `${inputsCollection.description.value}`,
+                    "execDate": `${dateFormat}`,
+                    "user": {
+                        "id": `${_userInfo['attributes']['id']}`
+                    },
+                    "customer": {
+                        "id": `${customerId}`
+                    },
+                    "execTime": `${inputsCollection.executionTime.value}`,
+                    "startTime": `${hourFormat}`,
+                    "startDate": `${dateFormat}`,
+
+                });
+                if (name.value.trim() === '' || name.value.trim() === null) {
+                    alert('Nombre del consigna fija vacío')
                 }
-                if(executionTime.value.trim() === '' || executionTime.value.trim() === null){
-                  alert('Debe especificar la hora de ejecución de la consigna')
+                if (executionTime.value.trim() === '' || executionTime.value.trim() === null) {
+                    alert('Debe especificar la hora de ejecución de la consigna')
                 }
-                else{
+                else {
                     reg(raw);
                     let rawUser = JSON.stringify({
                         "filter": {
@@ -467,48 +467,48 @@ export class Fixed {
                             ],
                         },
                     });
-                    const dataUser= await getFilterEntityData("User", rawUser);                           
-                    for(let i =0; i<dataUser.length;i++){
-                        
-                        const data = {"token":dataUser[i]['token'],"title": "General", "body":`${inputsCollection.name.value}`  }
+                    const dataUser = await getFilterEntityData("User", rawUser);
+                    for (let i = 0; i < dataUser.length; i++) {
+
+                        const data = { "token": dataUser[i]['token'], "title": "General", "body": `${inputsCollection.name.value}` }
                         const envioPush = await postNotificationPush(data);
                     }
-                   
-                } 
 
-                 
+                }
+
+
             });
-          
-            
-              const reg = async (raw) => {
-                  registerEntity(raw, 'Task_')
-                      .then((res) => {
-                      setTimeout(async () => {
-                          //let data = await getUsers();
-                          const tableBody = document.getElementById('datatable-body');
-                          const container = document.getElementById('entity-editor-container');
-                          new CloseDialog().x(container);
-                          new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
-                      }, 1000);
-                  });
-              };    
+
+
+            const reg = async (raw) => {
+                registerEntity(raw, 'Task_')
+                    .then((res) => {
+                        setTimeout(async () => {
+                            //let data = await getUsers();
+                            const tableBody = document.getElementById('datatable-body');
+                            const container = document.getElementById('entity-editor-container');
+                            new CloseDialog().x(container);
+                            new Fixed().render(Config.offset, Config.currentPage, infoPage.search);
+                        }, 1000);
+                    });
+            };
         };
-       
+
     }
     edit(container, data) {
-      // Edit entity
-      const edit = document.querySelectorAll('#edit-entity');
-      edit.forEach((edit) => {
-          const entityId = edit.dataset.entityid;
-          edit.addEventListener('click', () => {
-              RInterface('Task_', entityId);
-          });
-      });
-      const RInterface = async (entities, entityID) => {
-          const data = await getEntityData(entities, entityID);
-          this.entityDialogContainer.innerHTML = '';
-          this.entityDialogContainer.style.display = 'flex';
-          this.entityDialogContainer.innerHTML = `
+        // Edit entity
+        const edit = document.querySelectorAll('#edit-entity');
+        edit.forEach((edit) => {
+            const entityId = edit.dataset.entityid;
+            edit.addEventListener('click', () => {
+                RInterface('Task_', entityId);
+            });
+        });
+        const RInterface = async (entities, entityID) => {
+            const data = await getEntityData(entities, entityID);
+            this.entityDialogContainer.innerHTML = '';
+            this.entityDialogContainer.style.display = 'flex';
+            this.entityDialogContainer.innerHTML = `
               <div class="entity_editor" id="entity-editor">
               <div class="entity_editor_header">
                   <div class="user_info">
@@ -543,111 +543,111 @@ export class Fixed {
               </div>
               </div>
           `;
-          
-          inputObserver();
-          
-          this.close();
-          UUpdate(entityID);
-      };
-      const UUpdate = async (entityId) => {
-          const updateButton = document.getElementById('update-changes');
-          const $value = {
-            // @ts-ignore
-            name: document.getElementById('entity-name'),
-            // @ts-ignore
-            description: document.getElementById('entity-description'),
-            // @ts-ignore
-            execTime: document.getElementById('execution-time'),
-            // @ts-ignore
-           
-           
+
+            inputObserver();
+
+            this.close();
+            UUpdate(entityID);
         };
-          updateButton.addEventListener('click', (e) => {
-            e.preventDefault()
-            const name = document.getElementById('entity-name')
-            const executionTime = document.getElementById('execution-time')
-                if(name.value.trim() === '' || name.value.trim() === null){
-                  alert('Nombre del consigna fija vacío')
+        const UUpdate = async (entityId) => {
+            const updateButton = document.getElementById('update-changes');
+            const $value = {
+                // @ts-ignore
+                name: document.getElementById('entity-name'),
+                // @ts-ignore
+                description: document.getElementById('entity-description'),
+                // @ts-ignore
+                execTime: document.getElementById('execution-time'),
+                // @ts-ignore
+
+
+            };
+            updateButton.addEventListener('click', (e) => {
+                e.preventDefault()
+                const name = document.getElementById('entity-name')
+                const executionTime = document.getElementById('execution-time')
+                if (name.value.trim() === '' || name.value.trim() === null) {
+                    alert('Nombre del consigna fija vacío')
                 }
-                else if(executionTime.value.trim() === '' || executionTime.value.trim() === null){
-                  alert('Debe especificar la hora de ejecución de la consigna')
+                else if (executionTime.value.trim() === '' || executionTime.value.trim() === null) {
+                    alert('Debe especificar la hora de ejecución de la consigna')
                 }
-                else{
-                  let raw = JSON.stringify({
-                      // @ts-ignore
-                      "name": `${$value.name.value}`,
-                      "description": `${$value.description.value}`,
-                      // @ts-ignore
-                      "execTime": `${$value.execTime.value}`,
-                      "isRead": false,
-                      "isReadDate": '',
-                      "isReadTime":  '',
-                  });
-                  update(raw);
+                else {
+                    let raw = JSON.stringify({
+                        // @ts-ignore
+                        "name": `${$value.name.value}`,
+                        "description": `${$value.description.value}`,
+                        // @ts-ignore
+                        "execTime": `${$value.execTime.value}`,
+                        "isRead": false,
+                        "isReadDate": '',
+                        "isReadTime": '',
+                    });
+                    update(raw);
                 }
-          });
-          /**
+            });
+            /**
              * Update entity and execute functions to finish defying user
              * @param raw
              */
-          const update = async (raw) => {
-            updateEntity('Task_', entityId, raw)
-                .then((res) => {
-                setTimeout(async () => {
-                    let tableBody;
-                    let container;
-                    let data;
-                    tableBody = document.getElementById('datatable-body');
-                    container = document.getElementById('entity-editor-container');
-                    //data = await getUsers();
-                    new CloseDialog().x(container);
-                    new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
-                }, 100);
-            });
-        
-          
-            let rawUser = JSON.stringify({
-                "filter": {
-                    "conditions": [
-                        {
-                            "property": "customer.id",
-                            "operator": "=",
-                            "value": `${customerId}`
-                        },
-                        {
-                            "property": "userType",
-                            "operator": "=",
-                            "value": `GUARD`
-                        },
-                        {
-                            "property": "state.name",
-                            "operator": "=",
-                            "value": `Enabled`
-                        },
-                        {
-                            "property": "token",
-                            "operator": "<>",
-                            "value": ``
-                        }
-                    ],
-                },
-            });
-            const dataUser= await getFilterEntityData("User", rawUser);                           
-            for(let i =0; i<dataUser.length;i++){
-                
-                const data = {"token":dataUser[i]['token'],"title": "General", "body":`${$value.name.value}`  }
-                const envioPush = await postNotificationPush(data);
-            }
+            const update = async (raw) => {
+                updateEntity('Task_', entityId, raw)
+                    .then((res) => {
+                        setTimeout(async () => {
+                            let tableBody;
+                            let container;
+                            let data;
+                            tableBody = document.getElementById('datatable-body');
+                            container = document.getElementById('entity-editor-container');
+                            //data = await getUsers();
+                            new CloseDialog().x(container);
+                            new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
+                        }, 100);
+                    });
+
+
+                let rawUser = JSON.stringify({
+                    "filter": {
+                        "conditions": [
+                            {
+                                "property": "customer.id",
+                                "operator": "=",
+                                "value": `${customerId}`
+                            },
+                            {
+                                "property": "userType",
+                                "operator": "=",
+                                "value": `GUARD`
+                            },
+                            {
+                                "property": "state.name",
+                                "operator": "=",
+                                "value": `Enabled`
+                            },
+                            {
+                                "property": "token",
+                                "operator": "<>",
+                                "value": ``
+                            }
+                        ],
+                    },
+                });
+                const dataUser = await getFilterEntityData("User", rawUser);
+                for (let i = 0; i < dataUser.length; i++) {
+
+                    const data = { "token": dataUser[i]['token'], "title": "General", "body": `${$value.name.value}` }
+                    const envioPush = await postNotificationPush(data);
+                }
+            };
+
+
         };
-        
-        
-      };
     }
     remove() {
         const remove = document.querySelectorAll('#remove-entity');
         remove.forEach((remove) => {
             const entityId = remove.dataset.entityid;
-            
+
             remove.addEventListener('click', () => {
                 this.dialogContainer.style.display = 'flex';
                 this.dialogContainer.innerHTML = `
@@ -670,33 +670,33 @@ export class Fixed {
             </div>
           </div>
         `;
-        const deleteButton = document.getElementById('delete');
-        const cancelButton = document.getElementById('cancel');
-        const dialogContent = document.getElementById('dialog-content');
-        deleteButton.onclick = async() => {
-            deleteEntity('Task_', entityId)
-            .then((res) => {
-                setTimeout(async () => {
-                    //let data = await getUsers();
-                    const tableBody = document.getElementById('datatable-body');
+                const deleteButton = document.getElementById('delete');
+                const cancelButton = document.getElementById('cancel');
+                const dialogContent = document.getElementById('dialog-content');
+                deleteButton.onclick = async () => {
+                    deleteEntity('Task_', entityId)
+                        .then((res) => {
+                            setTimeout(async () => {
+                                //let data = await getUsers();
+                                const tableBody = document.getElementById('datatable-body');
+                                new CloseDialog().x(dialogContent);
+                                new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
+                            }, 1000);
+                        });
+                };
+                cancelButton.onclick = () => {
                     new CloseDialog().x(dialogContent);
-                    new Fixed().render(infoPage.offset, infoPage.currentPage, infoPage.search);
-                }, 1000);
+                    //this.render();
+                };
             });
-        };
-        cancelButton.onclick = () => {
-            new CloseDialog().x(dialogContent);
-            //this.render();
-        };
-    });
-});
-}
+        });
+    }
     export = () => {
-   
-      const exportNotes = document.getElementById('export-entities');
-      exportNotes.addEventListener('click', async() => {
-          this.dialogContainer.style.display = 'block';
-          this.dialogContainer.innerHTML = `
+
+        const exportNotes = document.getElementById('export-entities');
+        exportNotes.addEventListener('click', async () => {
+            this.dialogContainer.style.display = 'block';
+            this.dialogContainer.innerHTML = `
               <div class="dialog_content" id="dialog-content">
                   <div class="dialog">
                       <div class="dialog_container padding_8">
@@ -738,84 +738,84 @@ export class Fixed {
                   </div>
               </div>
           `;
-          const fecha = new Date();
-          
-          const hour = fecha.getHours();
-          const minutes  = fecha.getMinutes();
-          const seconds = fecha.getSeconds();
+            const fecha = new Date();
 
-          const hourFormat = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            const hour = fecha.getHours();
+            const minutes = fecha.getMinutes();
+            const seconds = fecha.getSeconds();
 
-          document.getElementById("start-time").value = "00:00"
-          document.getElementById("end-time").value = hourFormat
-          inputObserver();
-          const _closeButton = document.getElementById('cancel');
-          const exportButton = document.getElementById('export-data');
-          const _dialog = document.getElementById('dialog-content');
-          exportButton.addEventListener('click', async() => {
-              const _values = {
-                  start: document.getElementById('start-time'),
-                  end: document.getElementById('end-time'),
-                  exportOption: document.getElementsByName('exportOption')
-              }
-              let rawExport = JSON.stringify({
-                  "filter": {
-                      "conditions": [
-                        {
-                            "property": "taskType",
-                            "operator": "=",
-                            "value": `FIJAS`
-                        },
-                        {
-                        "property": "user.userType",
-                        "operator": "=",
-                        "value": `GUARD`
-                        },
-                        {
-                            "property": "customer.id",
-                            "operator": "=",
-                            "value": `${customerId}`
-                        },
-                        {
-                            "property": "execTime",
-                            "operator": ">=",
-                            "value": `${_values.start.value}`
-                        },
-                        {
-                            "property": "execTime",
-                            "operator": "<=",
-                            "value": `${_values.end.value}`
+            const hourFormat = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+            document.getElementById("start-time").value = "00:00"
+            document.getElementById("end-time").value = hourFormat
+            inputObserver();
+            const _closeButton = document.getElementById('cancel');
+            const exportButton = document.getElementById('export-data');
+            const _dialog = document.getElementById('dialog-content');
+            exportButton.addEventListener('click', async () => {
+                const _values = {
+                    start: document.getElementById('start-time'),
+                    end: document.getElementById('end-time'),
+                    exportOption: document.getElementsByName('exportOption')
+                }
+                let rawExport = JSON.stringify({
+                    "filter": {
+                        "conditions": [
+                            {
+                                "property": "taskType",
+                                "operator": "=",
+                                "value": `FIJAS`
+                            },
+                            {
+                                "property": "user.userType",
+                                "operator": "=",
+                                "value": `GUARD`
+                            },
+                            {
+                                "property": "customer.id",
+                                "operator": "=",
+                                "value": `${customerId}`
+                            },
+                            {
+                                "property": "execTime",
+                                "operator": ">=",
+                                "value": `${_values.start.value}`
+                            },
+                            {
+                                "property": "execTime",
+                                "operator": "<=",
+                                "value": `${_values.end.value}`
+                            }
+                        ],
+                    },
+                    sort: "+execTime",
+                    fetchPlan: 'full',
+                });
+                const fixed = await getFilterEntityData("Task_", rawExport);
+                for (let i = 0; i < _values.exportOption.length; i++) {
+                    let ele = _values.exportOption[i];
+                    if (ele.type = "radio") {
+                        if (ele.checked) {
+                            if (ele.value == "xls") {
+                                // @ts-ignore
+                                exportFixedXls(fixed, _values.start.value, _values.end.value);
+                            }
+                            else if (ele.value == "csv") {
+                                // @ts-ignore
+                                exportFixedCsv(fixed, _values.start.value, _values.end.value);
+                            }
+                            else if (ele.value == "pdf") {
+                                // @ts-ignore
+                                exportFixedPdf(fixed, _values.start.value, _values.end.value);
+                            }
                         }
-                      ],
-                  },
-                  sort: "+execTime",
-                  fetchPlan: 'full',
-              });
-              const fixed = await getFilterEntityData("Task_", rawExport); 
-              for (let i = 0; i < _values.exportOption.length; i++) {
-                  let ele = _values.exportOption[i];
-                  if (ele.type = "radio") {
-                      if (ele.checked) {
-                          if (ele.value == "xls") {
-                              // @ts-ignore
-                              exportFixedXls(fixed, _values.start.value, _values.end.value);
-                          }
-                          else if (ele.value == "csv") {
-                              // @ts-ignore
-                              exportFixedCsv(fixed, _values.start.value, _values.end.value);
-                          }
-                          else if (ele.value == "pdf") {
-                              // @ts-ignore
-                              exportFixedPdf(fixed, _values.start.value, _values.end.value);
-                          }
-                      }
-                  }
-              }
-          });
-          _closeButton.onclick = () => {
-              new CloseDialog().x(_dialog);
-          };
-      });
+                    }
+                }
+            });
+            _closeButton.onclick = () => {
+                new CloseDialog().x(_dialog);
+            };
+        });
     };
     close() {
         const closeButton = document.getElementById('close');

@@ -10,7 +10,7 @@ import { SignIn } from "../login.js";
 import { Sidebar } from "./sidebar.js";
 import { ChangePassword } from "./changePassword/changePassword.js";
 import { CloseDialog } from "../tools.js";
-import { FirebaseCtrl } from "../services/FirebaseCtrl";
+import { FirebaseCtrl } from "../services/FirebaseCtrl.js";
 export class RenderApplicationUI {
     constructor() {
         this.loginContainer = document.getElementById('login-container');
@@ -30,13 +30,17 @@ export class RenderApplicationUI {
   }
   async renderTopbar() {
     const customerId = localStorage.getItem('customer_id')
+    const tokenMessaging = localStorage.getItem('libreriasjs-notification-token');
+    console.log(tokenMessaging);
     const currentUser = await getUserInfo();
     const user = await getEntityData('User', currentUser.attributes.id);
     let customer = await getEntityData('Customer', customerId);
     let topbar = this.topbar.innerHTML = `
         <div class="user">
             <span class="welcome">Bienvenido</span>
-            <div id="token-container"></div>
+            <audio id="audio" controls style="display:none;">
+            <source type="audio/mpeg" src="./public/src/assets/sounds/levels.mp3">
+            </audio>
             <span class="separator"></span>
             <div class="userAvatar">
                 <i class="fa-solid fa-user"></i>
@@ -47,7 +51,6 @@ export class RenderApplicationUI {
                 </p>
                 <p id="current-user-customer" class="customer">${user.username}</p>
                 <p >${customer.name ? customer.name : 'Seleccione una empresa'}</p>
-                <div class="content"></div>
             </div>
            <div class="settings_button">
              <button id="settings-button">
@@ -56,14 +59,8 @@ export class RenderApplicationUI {
            </div>
            <div class="user_settings" id="user-settings">
              <button class="btn btn_transparent btn_widder" id="change-customer">Cambiar Empresa</button>
+             <button class="btn btn_transparent btn_widder" id="permit-notify">${tokenMessaging == undefined ? '🔔 Activar notificaciones' : 'Notificaciones activas'}</button>
              <!--<button class="btn btn_transparent btn_widder">Preferencias</button>-->
-             <div class="request-permission-container">
-                    <button class="request-permission-btn">
-                        <span class="loader hidden"></span>
-                        <span class="label-btn">🔔Activar notificaciones</span>
-                    </button>
-                </div>
-                 <div id="token-container"></div>
              <button class="btn btn_transparent btn_widder" id="change-password">Cambiar Contraseña</button>
              <br>
              <button class="btn btn_primary btn_widder" id="logout-button">Cerrar sesión</button>
@@ -71,90 +68,53 @@ export class RenderApplicationUI {
          </div>
     `;
     this.topbar.innerHTML = topbar;
+    const fireBaseCtrl = new FirebaseCtrl();
+    fireBaseCtrl.initApp();
+    fireBaseCtrl.onError((errorMessage) => {
+        console.log(errorMessage)
+    });
+    fireBaseCtrl.onGetToken((token) => {
+        console.log("token: "+token)
+    });
+    fireBaseCtrl.onRecieveNotification((notificationData) => {
+        console.log("HOLAAAAAAAAAAAA2222222222222")
+        var audio = document.getElementById("audio");
+        console.log(audio)
+
+            audio.play();
+    });
     const options = document.getElementById('settings-button');
     options.addEventListener('click', () => {
         const settingOptions = document.getElementById('user-settings');
-        const activeNotification = document.getElementById('activate-notification');
         const changePassword = document.getElementById('change-password');
         const changeCustomer = document.getElementById('change-customer');
+        const permitNotify = document.getElementById('permit-notify');
         const logoutButton = document.getElementById('logout-button');
         settingOptions.classList.toggle("user_settings_visible");
-        const fireBaseCtrl = new FirebaseCtrl();
-            const cardsContainer = document.querySelector(".content");
-            const tokenContainer = document.querySelector("#token-container");
-            const requestPermissionContainer = document.querySelector(".request-permission-container");
-            fireBaseCtrl.initApp();
-            fireBaseCtrl.onError((errorMessage) => {
-                requestPermissionContainer.classList.remove("hidden");
-                tokenContainer.classList.remove("ready");
-                tokenContainer.classList.add("active", "error");
-                tokenContainer.innerHTML = errorMessage;
-            });
-            fireBaseCtrl.onGetToken((token) => {
-                requestPermissionContainer.classList.add("hidden");
-                tokenContainer.classList.remove("error");
-                tokenContainer.classList.add("active", "ready");
-                tokenContainer.innerHTML = token;
-            });
-            const createCard = (notificationData) => {
-                const dataCard = {
-                    title: "Título",
-                    snap: "https://picsum.photos/1000/350",
-                    subtitle: "Subtítulo",
-                    excerpt: "Lorem ipsum dolor sit amet",
-                    ...notificationData,
-                };
-                const a = document.createElement("a");
-                a.classList.add("blog-post", "appear");
-                a.setAttribute("href", "#");
-                a.innerHTML = `
-                <img src="${dataCard.snap}" alt="" />
-                <div class="post-content">
-                  <div class="title-wrapper">
-                    <h2>${dataCard.title}</h2>
-                    <h3>${dataCard.subtitle}</h3>
-                  </div>
-                  <p class="content-excerpt">
-                    ${dataCard.excerpt}
-                  </p>
-                </div>`;
-                return a;
-            };
-            fireBaseCtrl.onRecieveNotification((notificationData) => {
-                const element = createCard(notificationData.data);
-                cardsContainer.prepend(element);
-                window.setTimeout(() => {
-                    element.classList.remove("appear");
-                }, 500);
-            });
-            requestPermissionContainer
-                .querySelector(".request-permission-btn")
-                .addEventListener("click", async (event) => {
-                const loader = requestPermissionContainer.querySelector(".loader");
-                const label = requestPermissionContainer.querySelector(".label-btn");
-                label.classList.add("hidden");
-                loader.classList.remove("hidden");
-                try {
-                    const permission = await Notification.requestPermission();
-                    if (permission !== "granted") {
-                        console.log("No se ha aceptado el registro de notificaciones");
-                        return;
+        
+            permitNotify.addEventListener("click", async (event) => {
+                if(tokenMessaging == undefined){
+                    try {
+                        const permission = await Notification.requestPermission();
+                        if (permission !== "granted") {
+                            console.log("No se ha aceptado el registro de notificaciones");
+                            return;
+                        }
+                        await fireBaseCtrl.enableWebNotifications();
+                        permitNotify.innerText = "Notificaciones activas"
+                        permitNotify.disabled= true
                     }
-                    await fireBaseCtrl.enableWebNotifications();
-                }
-                catch (err) {
-                    console.log("Hubo un error", err);
-                }
-                finally {
-                    label.classList.remove("hidden");
-                    loader.classList.add("hidden");
+                    catch (err) {
+                        console.log("Hubo un error", err);
+                    }
+                    finally {
+                        permitNotify.disabled= true
+                    }
                 }
             });
         changePassword.addEventListener("click", () => {
             new ChangePassword().render();
             //new CloseDialog().x(settingOptions);
-        });
-        activeNotification.addEventListener("click", () => {
         });
         changeCustomer.addEventListener("click", () => {
             new SelectCustomer().render(0, 1, '');

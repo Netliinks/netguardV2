@@ -1,4 +1,4 @@
-import { firebaseConfig } from "../firebaseConfig";
+import { firebaseConfig } from "../firebaseConfig.js";
 // @ts-ignore
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 // @ts-ignore
@@ -29,6 +29,7 @@ export class FirebaseCtrl {
             this.onErrorCb("This browser does not support the API's required to use the Firebase SDK");
             return;
         }
+        navigator.serviceWorker.register("firebase-messaging-sw.js");
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);
         try {

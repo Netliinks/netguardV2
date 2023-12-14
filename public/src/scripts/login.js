@@ -231,6 +231,7 @@ export class SignIn {
         localStorage.removeItem('customer_id');
         localStorage.removeItem('email');
         localStorage.removeItem('password');
+        localStorage.removeItem('libreriasjs-notification-token');
         this.checkSignIn();
         window.location.reload();
     }

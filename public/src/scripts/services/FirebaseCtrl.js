@@ -1,0 +1,99 @@
+import { firebaseConfig } from "../firebaseConfig";
+// @ts-ignore
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+// @ts-ignore
+import { getMessaging, getToken, isSupported } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+export class FirebaseCtrl {
+    constructor() {
+        // @ts-ignore
+        this.token = undefined;
+        // @ts-ignore
+        this.onRecieveNotificationCb = undefined;
+        // @ts-ignore
+        this.onErrorCb = undefined;
+        // @ts-ignore
+        this.onGetTokenCb = undefined;
+    }
+    async initApp() {
+        const savedToken = window.localStorage.getItem("libreriasjs-notification-token");
+        if (savedToken) {
+            // @ts-ignore
+            this.enableWebNotifications();
+        }
+    }
+    async enableWebNotifications() {
+        const supported = await isSupported();
+        // @ts-ignore
+        if (!supported && typeof this.onErrorCb === "function") {
+            // @ts-ignore
+            this.onErrorCb("This browser does not support the API's required to use the Firebase SDK");
+            return;
+        }
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+        try {
+            // @ts-ignore
+            this.token = await getToken(messaging, {
+                vapidKey: "BH4aiX84q3SN5tKCjdeOufkXRp4hazQEp012mP7bdmjSNk84B0Ra_y9uWoSX8y4oFwQ-a10-RvRnRNSJJQE1a38",
+            });
+        }
+        catch (err) {
+            console.log("An error occurred while retrieving token. ", err);
+            // @ts-ignore
+            if (typeof this.onErrorCb === "function") {
+                // @ts-ignore
+                this.onErrorCb(err.message);
+            }
+            return;
+        }
+        // @ts-ignore
+        if (!this.token) {
+            const error = "No registration token available. Request permission to generate one.";
+            console.log(error);
+            // @ts-ignore
+            if (typeof this.onErrorCb === "function") {
+                // @ts-ignore
+                this.onErrorCb(error);
+            }
+            return;
+        }
+        // @ts-ignore
+        console.log(this.token);
+        // @ts-ignore
+        if (typeof this.onGetTokenCb === "function") {
+            // @ts-ignore
+            window.localStorage.setItem("libreriasjs-notification-token", this.token);
+            // @ts-ignore
+            this.onGetTokenCb(this.token);
+        }
+        navigator.serviceWorker.addEventListener("message", (event) => {
+            console.log("FROM ON SERVICEWORKER MESSAGE", event);
+            // @ts-ignore
+            if (typeof this.onRecieveNotificationCb === "function") {
+                // @ts-ignore
+                this.onRecieveNotificationCb(event.data);
+            }
+        });
+    }
+    onGetToken(cb) {
+        if (typeof cb === "function") {
+            // @ts-ignore
+            this.onGetTokenCb = cb;
+        }
+    }
+    onRecieveNotification(cb) {
+        if (typeof cb === "function") {
+            // @ts-ignore
+            this.onRecieveNotificationCb = cb;
+        }
+    }
+    onError(cb) {
+        if (typeof cb === "function") {
+            // @ts-ignore
+            this.onErrorCb = (err) => {
+                window.localStorage.removeItem("libreriasjs-notification-token");
+                cb(err);
+            };
+        }
+    }
+}

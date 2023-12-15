@@ -59,7 +59,7 @@ export class FirebaseCtrl {
             return;
         }
         // @ts-ignore
-        console.log(this.token);
+        //console.log(this.token);
         // @ts-ignore
         if (typeof this.onGetTokenCb === "function") {
             // @ts-ignore

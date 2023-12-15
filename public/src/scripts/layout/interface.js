@@ -104,10 +104,10 @@ export class RenderApplicationUI {
             
         `;
         this.topbar.innerHTML = topBarNotification;
-        var audio = document.getElementById("audio");
-        var button = document.getElementById("okNotification");
-        var titleNotify = document.getElementById("titleNotify");
-        var counter = 1000;
+        const audio = document.getElementById("audio");
+        const button = document.getElementById("okNotification");
+        const titleNotify = document.getElementById("titleNotify");
+        let counter = 1000;
         let color = 1;
         let change = async () => {
             if(color == 1){

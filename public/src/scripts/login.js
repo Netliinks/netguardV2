@@ -111,6 +111,7 @@ export class SignIn {
                     let user = await getEntityData('User', currentUser.attributes.id);
                     let business = await getEntityData('Business', user?.business?.id);
                     if(user?.state?.name == 'Enabled' && business?.state?.name == 'Enabled'){
+                        localStorage.setItem('customer_id', user?.customer?.id);
                         new RenderApplicationUI().render();
                     }else{
                         this.signOut();

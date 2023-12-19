@@ -1,4 +1,4 @@
-import { firebaseConfig } from "../firebaseConfig.js";
+import { firebaseConfig, applicationServerKey } from "../firebaseConfig.js";
 // @ts-ignore
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 // @ts-ignore
@@ -22,59 +22,83 @@ export class FirebaseCtrl {
         }
     }
     async enableWebNotifications() {
-        const supported = await isSupported();
-        // @ts-ignore
-        if (!supported && typeof this.onErrorCb === "function") {
+        const permission = await Notification.requestPermission();
+        if(permission==="granted"){
+            const supported = await isSupported();
             // @ts-ignore
-            this.onErrorCb("This browser does not support the API's required to use the Firebase SDK");
-            return;
-        }
-        navigator.serviceWorker.register("firebase-messaging-sw.js");
-        const app = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
-        try {
+            if (!supported && typeof this.onErrorCb === "function") {
+                // @ts-ignore
+                this.onErrorCb("This browser does not support the API's required to use the Firebase SDK");
+                return;
+            }
+            navigator.serviceWorker.register("firebase-messaging-sw.js");
+            const app = initializeApp(firebaseConfig);
+            const messaging = getMessaging(app);
+            try {
+                // @ts-ignore
+                this.token = await getToken(messaging, {
+                    vapidKey: applicationServerKey,
+                });
+            }
+            catch (err) {
+                console.log("An error occurred while retrieving token. ", err);
+                // @ts-ignore
+                if (typeof this.onErrorCb === "function") {
+                    // @ts-ignore
+                    this.onErrorCb(err.message);
+                }
+                return;
+            }
             // @ts-ignore
-            this.token = await getToken(messaging, {
-                vapidKey: "BNXhjUBQ7KdX2RWjC8jWka1tktvKCHfUcCONPFWVyNo5DxS3STCe87ayao-mEKLhcbBQ_yU_h7ONYonzK6Qk-rk",
+            if (!this.token) {
+                const error = "No registration token available. Request permission to generate one.";
+                console.log(error);
+                // @ts-ignore
+                if (typeof this.onErrorCb === "function") {
+                    // @ts-ignore
+                    this.onErrorCb(error);
+                }
+                return;
+            }
+            // @ts-ignore
+            //console.log(this.token);
+            // @ts-ignore
+            if (typeof this.onGetTokenCb === "function") {
+                // @ts-ignore
+                window.localStorage.setItem("libreriasjs-notification-token", this.token);
+                // @ts-ignore
+                this.onGetTokenCb(this.token);
+            }
+            navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
+                const options = {
+                  userVisibleOnly: true,
+                  applicationServerKey: applicationServerKey,
+                };
+                serviceWorkerRegistration.pushManager.subscribe(options).then(
+                  (pushSubscription) => {
+                    //console.log(pushSubscription.endpoint);
+                    // The push subscription details needed by the application
+                    // server are now available, and can be sent to it using,
+                    // for example, the fetch() API.
+                  },
+                  (error) => {
+                    // During development it often helps to log errors to the
+                    // console. In a production environment it might make sense to
+                    // also report information about errors back to the
+                    // application server.
+                    console.error(error);
+                  },
+                );
+            });
+            navigator.serviceWorker.addEventListener("message", (event) => {
+                console.log("FROM ON SERVICEWORKER MESSAGE", event);
+                // @ts-ignore
+                if (typeof this.onRecieveNotificationCb === "function") {
+                    // @ts-ignore
+                    this.onRecieveNotificationCb(event.data);
+                }
             });
         }
-        catch (err) {
-            console.log("An error occurred while retrieving token. ", err);
-            // @ts-ignore
-            if (typeof this.onErrorCb === "function") {
-                // @ts-ignore
-                this.onErrorCb(err.message);
-            }
-            return;
-        }
-        // @ts-ignore
-        if (!this.token) {
-            const error = "No registration token available. Request permission to generate one.";
-            console.log(error);
-            // @ts-ignore
-            if (typeof this.onErrorCb === "function") {
-                // @ts-ignore
-                this.onErrorCb(error);
-            }
-            return;
-        }
-        // @ts-ignore
-        //console.log(this.token);
-        // @ts-ignore
-        if (typeof this.onGetTokenCb === "function") {
-            // @ts-ignore
-            window.localStorage.setItem("libreriasjs-notification-token", this.token);
-            // @ts-ignore
-            this.onGetTokenCb(this.token);
-        }
-        navigator.serviceWorker.addEventListener("message", (event) => {
-            console.log("FROM ON SERVICEWORKER MESSAGE", event);
-            // @ts-ignore
-            if (typeof this.onRecieveNotificationCb === "function") {
-                // @ts-ignore
-                this.onRecieveNotificationCb(event.data);
-            }
-        });
     }
     onGetToken(cb) {
         if (typeof cb === "function") {

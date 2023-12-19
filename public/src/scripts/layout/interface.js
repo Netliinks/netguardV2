@@ -54,7 +54,7 @@ export class RenderApplicationUI {
              </button>
            </div>
            <div class="user_settings" id="user-settings">
-             <button class="btn btn_transparent btn_widder" id="permit-notify">${tokenMessaging == undefined ? '🔔 Activar notificaciones' : 'Notificaciones activas'}</button>
+             <button class="btn btn_transparent btn_widder" id="permit-notify">🔔 Activar notificaciones</button>
              <button class="btn btn_transparent btn_widder" id="change-customer">Cambiar Empresa</button>
              <!--<button class="btn btn_transparent btn_widder">Preferencias</button>-->
              <button class="btn btn_transparent btn_widder" id="change-password">Cambiar Contraseña</button>
@@ -64,6 +64,7 @@ export class RenderApplicationUI {
          </div>
     `;
     this.topbar.innerHTML = topbar;
+    const permitNotify = document.getElementById('permit-notify');
     const fireBaseCtrl = new FirebaseCtrl();
     fireBaseCtrl.initApp();
     fireBaseCtrl.onError((errorMessage) => {
@@ -76,6 +77,8 @@ export class RenderApplicationUI {
         });
         updateEntity('User', currentUser.attributes.id, raw).then((res) => {
             console.log("token: "+token)
+            permitNotify.innerText = "Notificaciones activas"
+            permitNotify.disabled= true
         });
     });
     fireBaseCtrl.onRecieveNotification((notificationData) => {
@@ -133,7 +136,6 @@ export class RenderApplicationUI {
         const settingOptions = document.getElementById('user-settings');
         const changePassword = document.getElementById('change-password');
         const changeCustomer = document.getElementById('change-customer');
-        const permitNotify = document.getElementById('permit-notify');
         const logoutButton = document.getElementById('logout-button');
         settingOptions.classList.toggle("user_settings_visible");
         
@@ -146,8 +148,6 @@ export class RenderApplicationUI {
                             return;
                         }
                         await fireBaseCtrl.enableWebNotifications();
-                        permitNotify.innerText = "Notificaciones activas"
-                        permitNotify.disabled= true
                     }
                     catch (err) {
                         console.log("Hubo un error", err);

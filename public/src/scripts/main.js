@@ -1,5 +1,5 @@
 import { SignIn } from "./login.js";
-navigator.serviceWorker.register("firebase-messaging-sw.js");
+/*navigator.serviceWorker.register("firebase-messaging-sw.js");
 // Use serviceWorker.ready to ensure that you can subscribe for push
 navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
     const options = {
@@ -21,5 +21,5 @@ navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
         console.error(error);
       },
     );
-  });
+  });*/
 new SignIn().checkSignIn();

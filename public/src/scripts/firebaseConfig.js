@@ -1,9 +1,9 @@
 export const firebaseConfig = {
-    apiKey: "AIzaSyC8JRIkrHmIVgbbx_4Xb59unO8sQOQzTnA",
-    authDomain: "netlinks-sa.firebaseapp.com",
-    projectId: "netlinks-sa",
-    storageBucket: "netlinks-sa.appspot.com",
-    messagingSenderId: "847632298059",
-    appId: "1:847632298059:web:614fadb251beb57e8a1dce",
-    measurementId: "G-YWSED77X1F"
+    apiKey: "AIzaSyDd6Uaqe2FaUc8W5JiVyWKy1StTfWK6I_4",
+    authDomain: "netguards-1c84b.firebaseapp.com",
+    projectId: "netguards-1c84b",
+    storageBucket: "netguards-1c84b.appspot.com",
+    messagingSenderId: "289160473467",
+    appId: "1:289160473467:web:2f208e0c101be51100abde",
+    measurementId: "G-N34ECMV5Z2"
 };

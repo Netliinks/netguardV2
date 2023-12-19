@@ -35,7 +35,7 @@ export class FirebaseCtrl {
         try {
             // @ts-ignore
             this.token = await getToken(messaging, {
-                vapidKey: "BH4aiX84q3SN5tKCjdeOufkXRp4hazQEp012mP7bdmjSNk84B0Ra_y9uWoSX8y4oFwQ-a10-RvRnRNSJJQE1a38",
+                vapidKey: "BNXhjUBQ7KdX2RWjC8jWka1tktvKCHfUcCONPFWVyNo5DxS3STCe87ayao-mEKLhcbBQ_yU_h7ONYonzK6Qk-rk",
             });
         }
         catch (err) {

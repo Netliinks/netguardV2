@@ -37,13 +37,13 @@ export class FirebaseCtrl {
             try {
                 let serviceWorkerRegistration = undefined;
                 await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
-                    console.log("SW registration succeeded. Scope is "+reg.scope);
+                    //console.log("SW registration succeeded. Scope is "+reg.scope);
                     serviceWorkerRegistration = reg;
                     
                 }).catch(function(err){
                     console.error("SW registration failed with error "+err);
                 });
-                console.log(serviceWorkerRegistration);
+                //console.log(serviceWorkerRegistration);
                 // @ts-ignore
                 this.token = await getToken(messaging, {
                     serviceWorkerRegistration: serviceWorkerRegistration,
@@ -87,7 +87,7 @@ export class FirebaseCtrl {
                 };
                 serviceWorkerRegistration1.pushManager.subscribe(options).then(
                     (pushSubscription) => {
-                    console.log(pushSubscription.endpoint);
+                    //console.log(pushSubscription.endpoint);
                     // The push subscription details needed by the application
                     // server are now available, and can be sent to it using,
                     // for example, the fetch() API.

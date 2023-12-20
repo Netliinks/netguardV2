@@ -14,4 +14,11 @@
     });
     // @ts-ignore
     const messaging = firebase.messaging();
+
+    navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
+        console.log("SW registration succeeded. Scope is "+reg.scope);
+        messaging.useServiceWorker(reg);
+    }).catch(function(err){
+        console.error("SW registration failed with error "+err);
+    });
 //}

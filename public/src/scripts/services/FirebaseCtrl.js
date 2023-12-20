@@ -32,7 +32,7 @@ export class FirebaseCtrl {
                 return;
             }
             //navigator.serviceWorker.register("./firebase-messaging-sw.js");
-            navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js').then(registration => {
                 firebase.messaging().useServiceWorker(registration)
             })
             const app = initializeApp(firebaseConfig);

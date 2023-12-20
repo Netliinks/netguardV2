@@ -31,7 +31,10 @@ export class FirebaseCtrl {
                 this.onErrorCb("This browser does not support the API's required to use the Firebase SDK");
                 return;
             }
-            navigator.serviceWorker.register("./firebase-messaging-sw.js");
+            //navigator.serviceWorker.register("./firebase-messaging-sw.js");
+            navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                firebase.messaging().useServiceWorker(registration)
+            })
             const app = initializeApp(firebaseConfig);
             const messaging = getMessaging(app);
             try {

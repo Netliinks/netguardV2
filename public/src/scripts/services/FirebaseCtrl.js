@@ -45,7 +45,7 @@ export class FirebaseCtrl {
                         };
                         serviceWorkerRegistration.pushManager.subscribe(options).then(
                           (pushSubscription) => {
-                            //console.log(pushSubscription.endpoint);
+                            console.log(pushSubscription.endpoint);
                             // The push subscription details needed by the application
                             // server are now available, and can be sent to it using,
                             // for example, the fetch() API.

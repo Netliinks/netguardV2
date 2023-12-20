@@ -35,18 +35,19 @@ export class FirebaseCtrl {
             const app = initializeApp(firebaseConfig);
             const messaging = getMessaging(app);
             try {
-                await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(async function(reg){
+                let serviceWorkerRegistration = undefined;
+                await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
                     console.log("SW registration succeeded. Scope is "+reg.scope);
-                    console.log(reg);
-                    // @ts-ignore
-                    this.token = await getToken(messaging, {
-                        serviceWorkerRegistration: reg,
-                        vapidKey: applicationServerKey,
-                    });
+                    serviceWorkerRegistration = reg;
+                    
                 }).catch(function(err){
                     console.error("SW registration failed with error "+err);
                 });
-                
+                // @ts-ignore
+                this.token = await getToken(messaging, {
+                    serviceWorkerRegistration: serviceWorkerRegistration,
+                    vapidKey: applicationServerKey,
+                });
                 
             }
             catch (err) {

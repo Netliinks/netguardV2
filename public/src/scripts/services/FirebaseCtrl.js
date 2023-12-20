@@ -33,39 +33,40 @@ export class FirebaseCtrl {
             }
             //navigator.serviceWorker.register("./public/src/scripts/services/firebase-messaging-sw.js");
             
-            navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
-                          console.log("SW registration succeeded. Scope is "+reg.scope);
-                      }).catch(function(err){
-                          console.error("SW registration failed with error "+err);
-                      });
-            const registration = await navigator.serviceWorker.ready.then((serviceWorkerRegistration) => {
-                        const options = {
-                          userVisibleOnly: true,
-                          applicationServerKey: applicationServerKey,
-                        };
-                        serviceWorkerRegistration.pushManager.subscribe(options).then(
-                          (pushSubscription) => {
-                            console.log(pushSubscription.endpoint);
-                            // The push subscription details needed by the application
-                            // server are now available, and can be sent to it using,
-                            // for example, the fetch() API.
-                          },
-                          (error) => {
-                            // During development it often helps to log errors to the
-                            // console. In a production environment it might make sense to
-                            // also report information about errors back to the
-                            // application server.
-                            console.error(error);
-                          },
-                        );
-                    });
+            const serviceWorkerRegistration = await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
+                console.log("SW registration succeeded. Scope is "+reg.scope);
+            }).catch(function(err){
+                console.error("SW registration failed with error "+err);
+            });
+            console.log(serviceWorkerRegistration);
+            navigator.serviceWorker.ready.then((serviceWorkerRegistration1) => {
+                const options = {
+                    userVisibleOnly: true,
+                    applicationServerKey: applicationServerKey,
+                };
+                serviceWorkerRegistration1.pushManager.subscribe(options).then(
+                    (pushSubscription) => {
+                    console.log(pushSubscription.endpoint);
+                    // The push subscription details needed by the application
+                    // server are now available, and can be sent to it using,
+                    // for example, the fetch() API.
+                    },
+                    (error) => {
+                    // During development it often helps to log errors to the
+                    // console. In a production environment it might make sense to
+                    // also report information about errors back to the
+                    // application server.
+                    console.error(error);
+                    },
+                );
+            });
             const app = initializeApp(firebaseConfig);
             const messaging = getMessaging(app);
             try {
                 // @ts-ignore
                 this.token = await getToken(messaging, {
                     vapidKey: applicationServerKey,
-                    serviceWorkerRegistration: registration,
+                    serviceWorkerRegistration
                 });
             }
             catch (err) {

@@ -43,6 +43,7 @@ export class FirebaseCtrl {
                 }).catch(function(err){
                     console.error("SW registration failed with error "+err);
                 });
+                console.log(serviceWorkerRegistration);
                 // @ts-ignore
                 this.token = await getToken(messaging, {
                     serviceWorkerRegistration: serviceWorkerRegistration,

@@ -34,17 +34,20 @@ export class FirebaseCtrl {
             //navigator.serviceWorker.register("./public/src/scripts/services/firebase-messaging-sw.js");
             const app = initializeApp(firebaseConfig);
             const messaging = getMessaging(app);
-            navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
-                console.log("SW registration succeeded. Scope is "+reg.scope);
-                messaging.useServiceWorker(reg);
-            }).catch(function(err){
-                console.error("SW registration failed with error "+err);
-            });
             try {
-                // @ts-ignore
-                this.token = await getToken(messaging, {
-                    vapidKey: applicationServerKey,
+                await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(async function(reg){
+                    console.log("SW registration succeeded. Scope is "+reg.scope);
+                    console.log(reg);
+                    // @ts-ignore
+                    this.token = await getToken(messaging, {
+                        serviceWorkerRegistration: reg,
+                        vapidKey: applicationServerKey,
+                    });
+                }).catch(function(err){
+                    console.error("SW registration failed with error "+err);
                 });
+                
+                
             }
             catch (err) {
                 console.log("An error occurred while retrieving token. ", err);

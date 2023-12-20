@@ -1,5 +1,5 @@
 //"use strict";
-if( 'function' === typeof importScripts) {
+//if( 'function' === typeof importScripts) {
     importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
     importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js");
     // @ts-ignore
@@ -14,4 +14,4 @@ if( 'function' === typeof importScripts) {
     });
     // @ts-ignore
     const messaging = firebase.messaging();
-}
+//}

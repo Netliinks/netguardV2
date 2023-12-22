@@ -11,5 +11,19 @@ const firebaseApp = firebase.initializeApp({
     appId: "1:289160473467:web:2f208e0c101be51100abde",
     measurementId: "G-N34ECMV5Z2"
 });
+const originalUrl = "http://127.0.0.1:5501";
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    // fcp_options.link field from the FCM backend service goes there, but as the host differ, it not handled by Firebase JS Client sdk, so custom handling
+    if (event.notification && event.notification.data && event.notification.data.FCM_MSG && event.notification.data.FCM_MSG.notification) {
+        const url = event.notification.data.FCM_MSG.notification.click_action;
+        //console.log(url)
+        event.waitUntil(
+            self.clients.matchAll({type: 'window'}).then( windowClients => {
+                return originalUrl; //.focus();
+            })
+        )
+    }
+}, false);
 // @ts-ignore
 const messaging = firebase.messaging();

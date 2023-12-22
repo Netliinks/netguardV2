@@ -68,6 +68,8 @@ export class RenderApplicationUI {
     const fireBaseCtrl = new FirebaseCtrl();
     fireBaseCtrl.initApp();
     fireBaseCtrl.onError((errorMessage) => {
+        permitNotify.innerText = "❌ Error, reintente"
+        permitNotify.disabled= false
         console.log(errorMessage)
     });
     fireBaseCtrl.onGetToken((token) => {
@@ -77,7 +79,7 @@ export class RenderApplicationUI {
         });
         updateEntity('User', currentUser.attributes.id, raw).then((res) => {
             console.log("token: "+token)
-            permitNotify.innerText = "Notificaciones activas"
+            permitNotify.innerText = "✔️​ Notificaciones activas"
             permitNotify.disabled= true
         });
     });
@@ -87,9 +89,6 @@ export class RenderApplicationUI {
         let topBarNotification = this.topbar.innerHTML = `
             <div class="user">
                 <span class="welcome" id="titleNotify"style="color:red;">ALERTA</span>
-                <audio id="audio" controls loop style="display:none;">
-                    <source type="audio/mpeg" src="./public/src/assets/sounds/alarm.mp3">
-                </audio>
                 <span class="separator"></span>
                 <div class="userAvatar">
                     <button id="okNotification">
@@ -107,9 +106,11 @@ export class RenderApplicationUI {
             
         `;
         this.topbar.innerHTML = topBarNotification;
-        const audio = document.getElementById("audio");
+        //const audio = document.getElementById("audio");
         const button = document.getElementById("okNotification");
         const titleNotify = document.getElementById("titleNotify");
+        const audio = new Audio("./public/src/assets/sounds/alarm.mp3");
+        audio.play();
         let counter = 1000;
         let color = 1;
         let change = async () => {

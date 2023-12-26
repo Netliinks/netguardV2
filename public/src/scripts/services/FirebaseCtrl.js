@@ -32,83 +32,90 @@ export class FirebaseCtrl {
                 return;
             }
             //navigator.serviceWorker.register("./public/src/scripts/services/firebase-messaging-sw.js");
-            const app = initializeApp(firebaseConfig);
-            const messaging = getMessaging(app);
-            try {
-                let serviceWorkerRegistration = undefined;
-                await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: '/netguard/'}).then(function(reg){
-                    //console.log("SW registration succeeded. Scope is "+reg.scope);
-                    serviceWorkerRegistration = reg;
-                    
-                }).catch(function(err){
-                    console.error("SW registration failed with error "+err);
+            if ("serviceWorker" in navigator) {
+                const serviceWorkerRegistration = await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: "/netguard/"}).catch((error) => {
+                    console.error(`Service worker registration failed: ${error}`);
                 });
-                //console.log(serviceWorkerRegistration);
-                // @ts-ignore
-                this.token = await getToken(messaging, {
-                    serviceWorkerRegistration: serviceWorkerRegistration,
-                    vapidKey: applicationServerKey,
-                });
-                
-            }
-            catch (err) {
-                console.log("An error occurred while retrieving token. ", err);
-                // @ts-ignore
-                if (typeof this.onErrorCb === "function") {
-                    // @ts-ignore
-                    this.onErrorCb(err.message);
-                }
-                return;
-            }
-            // @ts-ignore
-            if (!this.token) {
-                const error = "No registration token available. Request permission to generate one.";
-                console.log(error);
-                // @ts-ignore
-                if (typeof this.onErrorCb === "function") {
-                    // @ts-ignore
-                    this.onErrorCb(error);
-                }
-                return;
-            }
-            // @ts-ignore
-            //console.log(this.token);
-            // @ts-ignore
-            if (typeof this.onGetTokenCb === "function") {
-                // @ts-ignore
-                window.localStorage.setItem("libreriasjs-notification-token", this.token);
-                // @ts-ignore
-                this.onGetTokenCb(this.token);
-            }
-            navigator.serviceWorker.ready.then((serviceWorkerRegistration1) => {
-                const options = {
+    
+                await navigator.serviceWorker.ready;
+    
+                const serviceWorkerSuscription = await serviceWorkerRegistration.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: applicationServerKey,
-                };
-                serviceWorkerRegistration1.pushManager.subscribe(options).then(
-                    (pushSubscription) => {
-                    //console.log(pushSubscription.endpoint);
-                    // The push subscription details needed by the application
-                    // server are now available, and can be sent to it using,
-                    // for example, the fetch() API.
-                    },
-                    (error) => {
-                    // During development it often helps to log errors to the
-                    // console. In a production environment it might make sense to
-                    // also report information about errors back to the
-                    // application server.
-                    console.error(error);
-                    },
-                );
-            });
-            navigator.serviceWorker.addEventListener("message", (event) => {
-                console.log("FROM ON SERVICEWORKER MESSAGE", event);
-                // @ts-ignore
-                if (typeof this.onRecieveNotificationCb === "function") {
+                    applicationServerKey,
+                }).catch((error) => {
+                    console.error(`Service worker suscription failed: ${error}`);
+                });
+                serviceWorkerSuscription;
+                const app = initializeApp(firebaseConfig);
+                const messaging = getMessaging(app);
+                try {
                     // @ts-ignore
-                    this.onRecieveNotificationCb(event.data);
+                    this.token = await getToken(messaging, {
+                        serviceWorkerRegistration: serviceWorkerRegistration,
+                        vapidKey: applicationServerKey,
+                    });
                 }
-            });
+                catch (err) {
+                    console.log("An error occurred while retrieving token. ", err);
+                    // @ts-ignore
+                    if (typeof this.onErrorCb === "function") {
+                        // @ts-ignore
+                        this.onErrorCb(err.message);
+                    }
+                    return;
+                }
+                // @ts-ignore
+                if (!this.token) {
+                    const error = "No registration token available. Request permission to generate one.";
+                    console.log(error);
+                    // @ts-ignore
+                    if (typeof this.onErrorCb === "function") {
+                        // @ts-ignore
+                        this.onErrorCb(error);
+                    }
+                    return;
+                }
+                // @ts-ignore
+                //console.log(this.token);
+                // @ts-ignore
+                if (typeof this.onGetTokenCb === "function") {
+                    // @ts-ignore
+                    window.localStorage.setItem("libreriasjs-notification-token", this.token);
+                    // @ts-ignore
+                    this.onGetTokenCb(this.token);
+                }
+                navigator.serviceWorker.ready.then((serviceWorkerRegistration1) => {
+                    const options = {
+                        userVisibleOnly: true,
+                        applicationServerKey: applicationServerKey,
+                    };
+                    serviceWorkerRegistration1.pushManager.subscribe(options).then(
+                        (pushSubscription) => {
+                        //console.log(pushSubscription.endpoint);
+                        // The push subscription details needed by the application
+                        // server are now available, and can be sent to it using,
+                        // for example, the fetch() API.
+                        },
+                        (error) => {
+                        // During development it often helps to log errors to the
+                        // console. In a production environment it might make sense to
+                        // also report information about errors back to the
+                        // application server.
+                        console.error(error);
+                        },
+                    );
+                });
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    console.log("FROM ON SERVICEWORKER MESSAGE", event);
+                    // @ts-ignore
+                    if (typeof this.onRecieveNotificationCb === "function") {
+                        // @ts-ignore
+                        this.onRecieveNotificationCb(event.data);
+                    }
+                });
+            }else{
+                console.error("Service workers are not supported.");
+            }
         }
     }
     onGetToken(cb) {

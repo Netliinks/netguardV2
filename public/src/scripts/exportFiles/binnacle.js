@@ -64,7 +64,11 @@ export const exportBinnaclePdf = (ar, start, end) => {
             if(title === "Se ha enviado la notificación"){
                 description.includes("Visita emergente finalizada confirmada.") 
                     ? title = "Visita Emergente Finalizada"
-                    : description.includes("Estado:Emergente.") ? title = "Visita Emergente Iniciada" : ''
+                    : description.includes("Estado:Emergente.") 
+                        ? title = "Visita Emergente Iniciada" 
+                        : description.includes("Estado: Iniciada .") 
+                            ? title = "Visita Iniciada"
+                            : description.includes("Estado: Terminada .") ? "Visita Finalizada" : '';
             }
             paragraph = doc.splitTextToSize(title, (pdfInMM - lMargin - rMargin));
             doc.text(lMargin, row, paragraph);

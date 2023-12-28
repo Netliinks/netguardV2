@@ -68,7 +68,7 @@ export const exportBinnaclePdf = (ar, start, end) => {
                         ? title = "Visita Emergente Iniciada" 
                         : description.includes("Estado: Iniciada .") 
                             ? title = "Visita Iniciada"
-                            : description.includes("Estado: Terminada .") ? "Visita Finalizada" : '';
+                            : description.includes("Estado: Terminada .") ? title = "Visita Finalizada" : '';
             }
             paragraph = doc.splitTextToSize(title, (pdfInMM - lMargin - rMargin));
             doc.text(lMargin, row, paragraph);

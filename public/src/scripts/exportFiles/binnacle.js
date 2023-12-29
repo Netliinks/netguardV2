@@ -77,7 +77,7 @@ export const exportBinnaclePdf = (ar, start, end) => {
             rowTitle > rowDescription ? row += rowTitle : row += rowDescription
             doc.setDrawColor(210, 210, 210);
             doc.line(5, row, 205, row);
-            if ((row+newDataBlock(ar,i)) > 285) { //290 limite de lineas A4
+            if ((row+newDataBlock(ar,i)) > 280) { //290 limite de lineas A4
                 doc.addPage();
                 row = 30;
                 pagina += 1;

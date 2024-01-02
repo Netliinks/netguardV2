@@ -46,8 +46,8 @@ export const exportVisitPdf = (ar, start, end) => {
             doc.text(130, row, splitText(doc, `${visit.user?.firstName ?? ''} ${visit.user?.lastName ?? ''}`, 130, 5, 180));
             doc.text(180, row, `${visit.visitState?.name ?? ''}`);
 
-            rowName1 = calculateRow(`${visit?.firstName ?? ''} ${visit?.firstLastName ?? ''} ${visit?.secondLastName ?? ''}`.length,"parrafo");
-            rowName2 = calculateRow(`${visit.user?.firstName ?? ''} ${visit.user?.lastName ?? ''}`.length,"parrafo");
+            rowName1 = calculateRow(`${visit?.firstName ?? ''} ${visit?.firstLastName ?? ''} ${visit?.secondLastName ?? ''}`.length,"nombre");
+            rowName2 = calculateRow(`${visit.user?.firstName ?? ''} ${visit.user?.lastName ?? ''}`.length,"nombre");
             rowName1 > rowName2 ? row += rowName1 : row += rowName2
             
             doc.setDrawColor(210, 210, 210);

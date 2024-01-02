@@ -362,11 +362,11 @@ export class Notes {
                                                     image = await getFile(note.attachment);
                                                 }
                                                 let obj = {
-                                                    "titulo": `${note.title.split("\n").join("(salto)")}`,
+                                                    "titulo": `${note.title.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
                                                     "fecha": `${noteCreationDate}`,
                                                     "hora": `${noteCreationTime}`,
                                                     "usuario": `${note.user?.firstName ?? ''} ${note.user?.lastName ?? ''}`,
-                                                    "contenido": `${note.content.split("\n").join("(salto)")}`,
+                                                    "contenido": `${note.content.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
                                                     "imagen": `${image}`
                                                 };
                                                 rows.push(obj);

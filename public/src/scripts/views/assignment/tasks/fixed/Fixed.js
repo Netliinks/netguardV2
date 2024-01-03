@@ -100,20 +100,7 @@ export class Fixed {
         this.dialogContainer = document.getElementById('app-dialogs');
         this.entityDialogContainer = document.getElementById('entity-editor-container');
         this.content = document.getElementById('datatable-container');
-        /*this.searchEntity = async (tableBody, data) => {
-            const search = document.getElementById('search');
-            await search.addEventListener('keyup', () => {
-                const arrayData = data.filter((user) => `${user.name}`
-                    .toLowerCase()
-                    .includes(search.value.toLowerCase()));
-                let filteredResult = arrayData.length;
-                let result = arrayData;
-                if (filteredResult >= tableRows)
-                    filteredResult = tableRows;
-                this.load(tableBody, currentPage, result);
-                this.pagination(result, tableRows, currentPage);
-            });
-        };*/
+        
         this.searchEntity = async (tableBody /*, data: any*/) => {
             const search = document.getElementById('search');
             const btnSearch = document.getElementById('btnSearch');
@@ -127,19 +114,7 @@ export class Fixed {
         };
     }
 
-    /*async render() {
-        this.content.innerHTML = '';
-        this.content.innerHTML = tableLayout;
-        const tableBody = document.getElementById('datatable-body');
-        tableBody.innerHTML = '.Cargando...';
-        let data = await getTakFixed();
-        tableBody.innerHTML = tableLayoutTemplate.repeat(tableRows);
-        this.load(tableBody, currentPage, data);
-        this.searchEntity(tableBody, data);
-        new filterDataByHeaderType().filter();
-        this.pagination(data, tableRows, currentPage);
-        tableBody
-    }*/
+   
     async render(offset, actualPage, search) {
         infoPage.offset = offset;
         infoPage.currentPage = actualPage;
@@ -226,8 +201,6 @@ export class Fixed {
             for (let i = 0; i < paginatedItems.length; i++) {
                 let taskFixed = paginatedItems[i];
                 let row = document.createElement('tr');
-                //row.setAttribute("id", `row${i}`);
-                //row.setAttribute("onclick","alerta()")
                 row.innerHTML += `
           <td>${taskFixed.name}</dt>
           
@@ -391,9 +364,10 @@ export class Fixed {
             let day = fecha.getDate();
             day = agregarCeros(day);
             const month = fecha.getMonth() + 1;
+            const meses = agregarCeros(month);
             const year = fecha.getFullYear();
 
-            const dateFormat = year + '-' + month + '-' + day;
+            const dateFormat = year + '-' + meses + '-' + day;
 
             const hour = fecha.getHours();
             const minutes = fecha.getMinutes();

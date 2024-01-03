@@ -345,10 +345,11 @@ export class Sporadic {
        
           let day = fecha.getDate();
           day = agregarCeros(day);
-          const month = fecha.getMonth() + 1; 
+          const month = fecha.getMonth() + 1;
+          const meses = agregarCeros(month);
           const year = fecha.getFullYear();
 
-          const dateFormat = year + '-' + month + '-' + day;
+          const dateFormat = year + '-' + meses + '-' + day;
           
           const hour = fecha.getHours();
           const minutes  = fecha.getMinutes();
@@ -415,6 +416,7 @@ export class Sporadic {
                 
               }
               else{
+                console.log(raw)
                 reg(raw);
                 let rawUser = JSON.stringify({
                     "filter": {

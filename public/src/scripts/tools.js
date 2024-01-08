@@ -394,3 +394,24 @@ export const fillBtnPagination = (currentPage, color) => {
     if(btnActive) btnActive.style.backgroundColor = color;
     //btnActive.focus();
 };
+
+export const currentDateTime = () => {
+    const _date = new Date();
+    // TIME
+    const _hours = _date.getHours();
+    const _minutes = _date.getMinutes();
+    const _seconds = _date.getSeconds();
+    const _fixedHours = ('0' + _hours).slice(-2);
+    const _fixedMinutes = ('0' + _minutes).slice(-2);
+    const _fixedSeconds = ('0' + _seconds).slice(-2);
+    const currentTime = `${_fixedHours}:${_fixedMinutes}:${_fixedSeconds}`;
+    // DATE
+    const _day = _date.getDate();
+    const _month = _date.getMonth() + 1;
+    const _year = _date.getFullYear();
+    const date = `${_year}-${('0' + _month).slice(-2)}-${('0' + _day).slice(-2)}`;
+    return {
+        date: date,
+        time: currentTime
+    }
+}

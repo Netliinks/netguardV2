@@ -415,3 +415,29 @@ export const currentDateTime = () => {
         time: currentTime
     }
 }
+
+export const getDetails = async (param, value, table) => {
+    const customerId = localStorage.getItem('customer_id');
+    let raw = JSON.stringify({
+        "filter": {
+            "conditions": [
+                {
+                "property": `${param}`,
+                "operator": "=",
+                "value": `${value}`
+                },
+                {
+                "property": `customer.id`,
+                "operator": "=",
+                "value": `${customerId}`
+                }
+            ]
+        },
+        sort: "createdDate", 
+        fetchPlan: 'full',
+    });
+    let data = await getFilterEntityData(`${table}`, raw);
+    if(data.length != 0){
+        return data
+    }
+}

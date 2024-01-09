@@ -1,7 +1,7 @@
 // @filename: locations.ts
-import { deleteEntity, getEntitiesData, registerEntity, updateEntity, getEntityData, getFilterEntityData, getFilterEntityCount, getUserInfo } from "../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, pageNumbers, fillBtnPagination, currentDateTime } from "../../../tools.js";
-import { Config } from "../../../Configs.js";
+import { deleteEntity, getEntitiesData, registerEntity, updateEntity, getEntityData, getFilterEntityData, getFilterEntityCount, getUserInfo } from "../../../../endpoints.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, pageNumbers, fillBtnPagination, currentDateTime } from "../../../../tools.js";
+import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
 const tableRows = Config.tableRows;
@@ -14,16 +14,18 @@ let infoPage = {
   search: ""
 };
 let dataPage;
+let routine;
 const currentBusiness = async() => {
     const currentUser = await getUserInfo();
     const userid = await getEntityData('User', `${currentUser.attributes.id}`);
     return userid;
   }
-const getLocations= async () => {
+const getLocations = async (routineId) => {
     //nombre de la entidad
     /*const location = await getEntitiesData('Location');
     const FCustomer = location.filter((data) => `${data.customer?.id}` === `${customerId}`);
     return FCustomer;*/
+    routine = await getEntityData("Routine", routineId)
     let raw = JSON.stringify({
       "filter": {
           "conditions": [
@@ -31,7 +33,12 @@ const getLocations= async () => {
                   "property": "customer.id",
                   "operator": "=",
                   "value": `${customerId}`
-              }
+              },
+              {
+                "property": "routine.id",
+                "operator": "=",
+                "value": `${routineId}`
+              },
           ],
       },
       sort: "-createdDate",
@@ -57,7 +64,12 @@ const getLocations= async () => {
                       "property": "customer.id",
                       "operator": "=",
                       "value": `${customerId}`
-                  }
+                  },
+                  {
+                    "property": "routine.id",
+                    "operator": "=",
+                    "value": `${routine.id}`
+                  },
               ]
           },
           sort: "-createdDate",
@@ -91,20 +103,22 @@ export class Locations {
                 this.pagination(result, tableRows, currentPage);*/
             });
             btnSearch.addEventListener('click', async () => {
-              new Locations().render(Config.offset, Config.currentPage, search.value.toLowerCase().trim());
+              new Locations().render(Config.offset, Config.currentPage, search.value.toLowerCase().trim(), routine.id);
             });
         };
     }
 
-    async render(offset, actualPage, search) {
+    async render(offset, actualPage, search, routineId) {
         infoPage.offset = offset;
         infoPage.currentPage = actualPage;
         infoPage.search = search;
         this.content.innerHTML = '';
         this.content.innerHTML = tableLayout;
         const tableBody = document.getElementById('datatable-body');
+        const subtitle = document.getElementById('datatable_subtitle')  
         tableBody.innerHTML = '.Cargando...';
-        let data = await getLocations();
+        let data = await getLocations(routineId);
+        subtitle.innerText = `Rutina: ${routine.name}`
         tableBody.innerHTML = tableLayoutTemplate.repeat(tableRows);
         this.load(tableBody, currentPage, data);
         this.searchEntity(tableBody /*, data*/);
@@ -180,7 +194,7 @@ export class Locations {
             button.innerText = page;
             button.addEventListener('click', () => {
                 currentPage = page;
-                new Locations().render(infoPage.offset, currentPage, infoPage.search);
+                new Locations().render(infoPage.offset, currentPage, infoPage.search, routine.id);
             });
             return button;
         }
@@ -206,11 +220,11 @@ export class Locations {
       }
       function setupButtonsEvents(prevButton, nextButton) {
           prevButton.addEventListener('click', () => {
-              new Locations().render(Config.offset, Config.currentPage, infoPage.search);
+              new Locations().render(Config.offset, Config.currentPage, infoPage.search, routine.id);
           });
           nextButton.addEventListener('click', () => {
               infoPage.offset = Config.tableRows * (pageCount - 1);
-              new Locations().render(infoPage.offset, pageCount, infoPage.search);
+              new Locations().render(infoPage.offset, pageCount, infoPage.search, routine.id);
           });
       }
     }
@@ -288,7 +302,15 @@ export class Locations {
       `;
             // @ts-ignore
             inputObserver();
-            initAutocomplete(-2.186790330550842, -79.8948977850493, 13);
+            let lat = -2.186790330550842;
+            let long = -79.8948977850493;
+            let zoom = 13
+            if(infoPage.count != 0){
+              lat = parseFloat(dataPage[0].latitude);
+              long = parseFloat(dataPage[0].longitude);
+              zoom = 20;
+            }
+            initAutocomplete(lat, long, zoom);
             this.close();
             const registerButton = document.getElementById('register-entity');
             registerButton.addEventListener('click', async () => {
@@ -318,6 +340,9 @@ export class Locations {
                     "customer": {
                         "id": `${customerId}`
                     },
+                    "routine": {
+                      "id": `${routine.id}`
+                    },
                     'scheduleTime': `${inputsCollection.scheduleTime.value}`,
                     'creationDate': `${currentDateTime().date}`,
                     'creationTime': `${currentDateTime().time}`,
@@ -328,12 +353,14 @@ export class Locations {
                   alert("No se ha seleccionado una ubicación");
                 /*}else if(inputsCollection.distance.value == "" || inputsCollection.distance.value == undefined || inputsCollection.distance.value < 0){
                   alert("Distancia inválida");*/
+                }else if(routine.id == '' || routine.id == null || routine.id == undefined){
+                  alert("No hay rutina");
                 }else{
                   registerEntity(raw, 'RoutineSchedule');
                   setTimeout(() => {
                       const container = document.getElementById('entity-editor-container');
                       new CloseDialog().x(container);
-                      new Locations().render(Config.offset, Config.currentPage, infoPage.search);
+                      new Locations().render(Config.offset, Config.currentPage, infoPage.search, routine.id);
                   }, 1000);
                 }
             });
@@ -573,7 +600,7 @@ export class Locations {
                     new CloseDialog()
                         .x(container =
                         document.getElementById('entity-editor-container'));
-                    new Locations().render(infoPage.offset, infoPage.currentPage, infoPage.search);
+                    new Locations().render(infoPage.offset, infoPage.currentPage, infoPage.search, routine.id);
                     //new Locations().load(tableBody
                     //    = document.getElementById('datatable-body'), currentPage, data);
                 }, 100);
@@ -671,7 +698,7 @@ export class Locations {
                 const dialogContent = document.getElementById('dialog-content');
                 deleteButton.onclick = () => {
                     deleteEntity('RoutineSchedule', entityId)
-                        .then(res => new Locations().render(infoPage.offset, infoPage.currentPage, infoPage.search));
+                        .then(res => new Locations().render(infoPage.offset, infoPage.currentPage, infoPage.search, routine.id));
                     new CloseDialog().x(dialogContent);
                 };
                 cancelButton.onclick = () => {

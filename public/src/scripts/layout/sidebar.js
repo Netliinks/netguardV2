@@ -22,7 +22,7 @@ import { Fixed } from "../views/assignment/tasks/fixed/Fixed.js";
 import { Sporadic } from "../views/assignment/tasks/sporadic/Sporadic.js";
 import { Procedures } from "../views/assignment/procedures/Procedures.js";
 //import { Tasks } from "../views/assignment/tasks/Tasks.js";
-import { Locations } from "../views/routines/locations/Locations.js";
+import { Routines } from "../views/routines/routines/Routines.js";
 export class Sidebar {
   constructor() {
       this.sidebarContainer = document.getElementById('app-sidebar');
@@ -221,9 +221,9 @@ export class Sidebar {
 
               <div class="sidebar_subitems">
 
-                <div class="sidebar_subitem" id="render-routineUbication">
+                <div class="sidebar_subitem" id="render-routineConfiguration">
                   <span class="sidebar_subitem_label">
-                    <i class="fa-regular fa-map-location"></i> <div class="label">Ubicación</div>
+                    <i class="fa-regular fa-gear"></i> <div class="label">Configurar</div>
                   </span>
                 </div>
 
@@ -318,8 +318,8 @@ renders() {
       new Procedures().render(Config.offset, Config.currentPage, "");
     });
 
-    document.getElementById('render-routineUbication')?.addEventListener('click', () => {
-      new Locations().render(Config.offset, Config.currentPage, "");
+    document.getElementById('render-routineConfiguration')?.addEventListener('click', () => {
+      new Routines().render(Config.offset, Config.currentPage, "");
     });
   }
 }

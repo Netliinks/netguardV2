@@ -437,7 +437,34 @@ export const getDetails = async (param, value, table) => {
         fetchPlan: 'full',
     });
     let data = await getFilterEntityData(`${table}`, raw);
-    if(data.length != 0){
-        return data
-    }
+    return data
+}
+
+export const getDetails2 = async (param, value, param2, value2, table) => {
+    const customerId = localStorage.getItem('customer_id');
+    let raw = JSON.stringify({
+        "filter": {
+            "conditions": [
+                {
+                "property": `${param}`,
+                "operator": "=",
+                "value": `${value}`
+                },
+                {
+                "property": `${param2}`,
+                "operator": "=",
+                "value": `${value2}`
+                },
+                {
+                "property": `customer.id`,
+                "operator": "=",
+                "value": `${customerId}`
+                }
+            ]
+        },
+        sort: "createdDate", 
+        fetchPlan: 'full',
+    });
+    let data = await getFilterEntityData(`${table}`, raw);
+    return data
 }

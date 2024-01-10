@@ -5,6 +5,7 @@ import { Config } from "../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
 import { Locations } from "../routines/locations/Locations.js";
+import { RoutineUsers } from "../routines/users/Users.js";
 const tableRows = Config.tableRows;
 const currentPage = Config.currentPage;
 const customerId = localStorage.getItem('customer_id');
@@ -138,7 +139,11 @@ export class Routines {
 
               <button class="button" id="location-entity" data-entityId="${routine.id}">
                 <i class="fa-solid fa-map-location"></i>
-            </button>
+              </button>
+
+              <button class="button" id="guard-entity" data-entityId="${routine.id}">
+                <i class="fa-solid fa-user-police"></i>
+              </button>
 
             <button class="button" id="remove-entity" data-entityId="${routine.id}">
               <i class="fa-solid fa-trash"></i>
@@ -152,6 +157,7 @@ export class Routines {
         this.register();
         this.remove();
         this.location();
+        this.assignGuard();
         this.edit(this.entityDialogContainer, data);
     }
     pagination(items, limitRows, currentPage) {
@@ -431,10 +437,16 @@ export class Routines {
               const dialogContent = document.getElementById('dialog-content');
               deleteButton.onclick = async() => {
                   const locations = await getDetails('routine.id', entityId, 'RoutineSchedule');
-                  console.log(locations);
-                  if(locations != undefined){
+                  if(locations.length != 0){
                     for(let i=0; i<locations.length; i++){
                       deleteEntity('RoutineSchedule', locations[i].id);
+                    }
+                  }
+
+                  const guards = await getDetails('routine.id', entityId, 'RoutineUser');
+                  if(guards.length != 0){
+                    for(let i=0; i<guards.length; i++){
+                      deleteEntity('RoutineUser', guards[i].id);
                     }
                   }
                   deleteEntity('Routine', entityId)
@@ -462,6 +474,15 @@ export class Routines {
             });
         });
   }
+  assignGuard() {
+    const userRoutine = document.querySelectorAll('#guard-entity');
+    userRoutine.forEach((buttonKey) => {
+          buttonKey.addEventListener('click', async () => {
+              let entityId = buttonKey.dataset.entityid;
+              new RoutineUsers().render(Config.offset, Config.currentPage, "", entityId);
+          });
+      });
+}
     close() {
         const closeButton = document.getElementById('close');
         const editor = document.getElementById('entity-editor-container');

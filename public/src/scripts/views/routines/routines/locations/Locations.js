@@ -150,8 +150,8 @@ export class Locations {
                 row.innerHTML += `
           <td>${location.name}</dt>
           <td>${location.cords}</dt>
-          <td>${location.scheduleTime}</dt>
-          <!-- <td>${location?.distance ?? 0}</dt> -->
+          <td>${location.scheduleTime} - ${location.scheduleTimeEnd ?? ''}</dt>
+          <td>${location?.distance ?? 0}</dt>
           <td class="entity_options">
           <button class="button" id="edit-entity" data-entityId="${location.id}">
             <i class="fa-solid fa-pen"></i>

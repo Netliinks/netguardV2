@@ -23,6 +23,7 @@ import { Sporadic } from "../views/assignment/tasks/sporadic/Sporadic.js";
 import { Procedures } from "../views/assignment/procedures/Procedures.js";
 //import { Tasks } from "../views/assignment/tasks/Tasks.js";
 import { Routines } from "../views/routines/routines/Routines.js";
+import { RoutineRegisters } from "../views/routines/details/Details.js";
 export class Sidebar {
   constructor() {
       this.sidebarContainer = document.getElementById('app-sidebar');
@@ -320,6 +321,10 @@ renders() {
 
     document.getElementById('render-routineConfiguration')?.addEventListener('click', () => {
       new Routines().render(Config.offset, Config.currentPage, "");
+    });
+
+    document.getElementById('render-routineDetails')?.addEventListener('click', () => {
+      new RoutineRegisters().render(Config.offset, Config.currentPage, "");
     });
   }
 }

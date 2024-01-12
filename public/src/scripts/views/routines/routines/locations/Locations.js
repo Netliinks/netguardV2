@@ -280,14 +280,30 @@ export class Locations {
               <input type="text" id="entity-cords" autocomplete="none" readonly>
               <label for="entity-cords">Coordenadas</label>
             </div>
-            <div class="material_input">
-              <input type="time" class="input_filled" id="entity-scheduleTime" autocomplete="none" value="${_fixedHours}:${_fixedMinutes}">
-              <label for="entity-scheduleTime">Tiempo</label>
+            <div class="form_group">
+                <div class="form_input">
+                    <label class="form_label" for="entity-scheduleTime">Inicio:</label>
+                    <input type="time" class="input_time input_time-start" id="entity-scheduleTime" name="entity-scheduleTime" value="${_fixedHours}:${_fixedMinutes}">
+                </div>
+
+                <div class="form_input">
+                    <label class="form_label" for="entity-scheduleTimeEnd">Fin:</label>
+                    <input type="time" class="input_time input_time-end" id="entity-scheduleTimeEnd" name="entity-scheduleTimeEnd" value="${_fixedHours}:${_fixedMinutes}">
+                </div>
             </div>
-            <!-- <div class="material_input">
-              <input type="number" id="entity-distance" autocomplete="none" value=0 min=0>
-              <label for="entity-distance">Distancia</label>
-            </div> -->         
+            <br>
+            <div class="material_input">
+              <label for="entity-distance">Frecuencia (minutos)</label>
+              <br>
+              <br>
+                <select class="input_filled" id="entity-distance">
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="60">60</option>
+                </select>
+              
+            </div>       
           </div>
         </div>
             
@@ -307,7 +323,9 @@ export class Locations {
             let zoom = 13
             if(infoPage.count != 0){
               lat = parseFloat(dataPage[0].latitude);
+              //console.log(lat)
               long = parseFloat(dataPage[0].longitude);
+              //console.log(long)
               zoom = 20;
             }
             initAutocomplete(lat, long, zoom);
@@ -319,21 +337,22 @@ export class Locations {
                     name: document.getElementById('entity-name'),
                     cords: document.getElementById('entity-cords'),
                     scheduleTime: document.getElementById('entity-scheduleTime'),
-                    //distance: document.getElementById('entity-distance'),
+                    scheduleTimeEnd: document.getElementById('entity-scheduleTimeEnd'),
+                    distance: document.getElementById('entity-distance'),
 
                 };
                 const coords = inputsCollection.cords.value.split(',');
-                console.log(coords)
+                //console.log(coords)
                 const latitud = parseFloat(coords[0].trim());
-                console.log(latitud)
+                //console.log(latitud)
                 const longitud = parseFloat(coords[1].trim());
-                console.log(longitud)
+                //console.log(longitud)
                 const raw = JSON.stringify({
                     "name": `${inputsCollection.name.value}`,
                     "cords": `${inputsCollection.cords.value}`,
                     'latitude' : `${latitud}`,
                     'longitude' : `${longitud}`,
-                    "distance": 0,//`${inputsCollection.distance.value}`,  
+                    "distance": `${inputsCollection.distance.value}`,  
                     "business": {
                         "id": `${businessData.business.id}`
                     },                 
@@ -344,6 +363,7 @@ export class Locations {
                       "id": `${routine.id}`
                     },
                     'scheduleTime': `${inputsCollection.scheduleTime.value}`,
+                    'scheduleTimeEnd': `${inputsCollection.scheduleTimeEnd.value}`,
                     'creationDate': `${currentDateTime().date}`,
                     'creationTime': `${currentDateTime().time}`,
                 });
@@ -351,8 +371,8 @@ export class Locations {
                   alert("Nombre de Ubicación vacía");
                 }else if(inputsCollection.cords.value == "" || inputsCollection.cords.value == undefined){
                   alert("No se ha seleccionado una ubicación");
-                /*}else if(inputsCollection.distance.value == "" || inputsCollection.distance.value == undefined || inputsCollection.distance.value < 0){
-                  alert("Distancia inválida");*/
+                }else if(inputsCollection.distance.value == "" || inputsCollection.distance.value == undefined || inputsCollection.distance.value < 0){
+                  alert("Distancia inválida");
                 }else if(routine.id == '' || routine.id == null || routine.id == undefined){
                   alert("No hay rutina");
                 }else{
@@ -481,17 +501,30 @@ export class Locations {
                   value="${data?.cords ?? ''}" readonly>
                 <label for="entity-cords">Coordenadas</label>
               </div>
-              <div class="material_input">
-                <input type="time" class="input_filled" id="entity-scheduleTime" autocomplete="none" value="${data?.scheduleTime ?? ''}">
-                <label for="entity-scheduleTime">Tiempo</label>
+              <div class="form_group">
+                <div class="form_input">
+                    <label class="form_label" for="entity-scheduleTime">Inicio:</label>
+                    <input type="time" class="input_time input_time-start" id="entity-scheduleTime" name="entity-scheduleTime" value="${data?.scheduleTime ?? ''}">
+                </div>
+
+                <div class="form_input">
+                    <label class="form_label" for="entity-scheduleTimeEnd">Fin:</label>
+                    <input type="time" class="input_time input_time-end" id="entity-scheduleTimeEnd" name="entity-scheduleTimeEnd" value="${data?.scheduleTimeEnd ?? ''}">
+                </div>
               </div>
-              <!-- <div class="material_input">
-                <input type="number"
-                  id="entity-distance"
-                  class="input_filled"
-                  value="${data?.distance ?? 0}" min=0>
-                <label for="entity-distance">Distancia</label>
-              </div> -->
+              <br>
+              <div class="material_input">
+                <label for="entity-distance">Frecuencia (minutos)</label>
+                <br>
+                <br>
+                  <select class="input_filled" id="entity-distance">
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="60">60</option>
+                  </select>
+              
+              </div>  
               <div style="display:flex;justify-content:center">
                     <img alt="Código QR ${data?.name.trim() ?? ''}" id="qrcode">
                     <br>
@@ -507,12 +540,13 @@ export class Locations {
       </div>
     `;
           const coords = data?.cords.split(',');
-          console.log(coords)
+          //console.log(coords)
           const latitud = parseFloat(coords[0].trim());
-          console.log(latitud)
+          //console.log(latitud)
           const longitud = parseFloat(coords[1].trim());
-          console.log(longitud)
+          //console.log(longitud)
           inputObserver();
+          document.getElementById("entity-distance").value = data?.distance;
           initAutocomplete(latitud, longitud, 20);
           this.close();
           const qr = document.getElementById("qrcode");
@@ -526,7 +560,7 @@ export class Locations {
                 level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
             });
             download(qr, data);
-          UUpdate(entityID);
+          UUpdate(entityID, latitud, longitud);
       };
       const download = (qr, data) => {
         const btnDescargar = document.getElementById('btnDescargar');
@@ -545,8 +579,9 @@ export class Locations {
             // @ts-ignore
             cords: document.getElementById('entity-cords'),
             scheduleTime: document.getElementById('entity-scheduleTime'),
+            scheduleTimeEnd: document.getElementById('entity-scheduleTimeEnd'),
             // @ts-ignore
-            //distance: document.getElementById('entity-distance'),
+            distance: document.getElementById('entity-distance'),
 
         };
           updateButton.addEventListener('click', () => {
@@ -558,16 +593,17 @@ export class Locations {
                 "latitude": `${latitud}`,
                 "longitude": `${longitud}`,
                 "scheduleTime": `${$value.scheduleTime.value}`,
+                "scheduleTimeEnd": `${$value.scheduleTimeEnd.value}`,
                 // @ts-ignore
-                //"distance": `${$value.distance.value}`,
+                "distance": `${$value.distance.value}`,
             });
             if($value.name.value == "" || $value.name.value == undefined){
               alert("Nombre de Ubicación vacía");
             }else if($value.cords.value == "" || $value.cords.value == undefined){
               alert("No se ha seleccionado una ubicación");
-            }/*else if($value.distance.value == "" || $value.distance.value == undefined || $value.distance.value < 0){
+            }else if($value.distance.value == "" || $value.distance.value == undefined || $value.distance.value < 0){
               alert("Distancia inválida");
-            }*/else{
+            }else{
               update(raw);
             }
           });

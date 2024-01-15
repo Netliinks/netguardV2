@@ -61,7 +61,7 @@ export const UIRightSidebar = `
     <div class="entity_editor_header">
       <div class="user_info">
         <div class="avatar"><i class="fa-regular fa-magnifying-glass"></i></div>
-        <h1 class="entity_editor_title">Detalles del <br><small>reporte</small></h1>
+        <h1 class="entity_editor_title">Detalles del <br><small>registro</small></h1>
       </div>
 
       <button class="btn btn_close_editor" id="close"><i class="fa-solid fa-x"></i></button>
@@ -69,21 +69,35 @@ export const UIRightSidebar = `
 
     <!-- EDITOR BODY -->
     <div class="entity_editor_body">
-        <div id="note-picture-placeholder">
+        <div id="register-picture-placeholder">
 
         </div>
 
-        <h2 id="note-title">Cargando</h2>
-        <p id="note-content" style="word-break: break-all">Por favor espere...</p><br><br>
+        <p id="register-content" style="word-break: break-all">Por favor espere...</p><br><br>
 
         <div class="input_detail">
-            <label for="note-author"><i class="fa-solid fa-user"></i></label>
-            <input type="text" id="note-author" class="input_filled" readonly>
+            <label for="register-routine"><i class="fa-solid fa-alarm-clock"></i></label>
+            <input type="text" id="register-routine" class="input_filled" readonly>
         </div>
         <br>
         <div class="input_detail">
-            <label for="note-author-id"><i class="fa-solid fa-at"></i></label>
-            <input type="text" id="note-author-id" class="input_filled" readonly>
+            <label for="register-schedule"><i class="fa-solid fa-map-location"></i></label>
+            <input type="text" id="register-schedule" class="input_filled" readonly>
+        </div>
+        <br>
+        <div class="input_detail">
+            <label for="register-location-lat"><i class="fa-solid fa-location-dot"></i></label>
+            <input type="text" id="register-location-lat" class="input_filled" readonly>
+        </div>
+        <br>
+        <div class="input_detail">
+            <label for="register-location-long"><i class="fa-solid fa-location-dot"></i></label>
+            <input type="text" id="register-location-long" class="input_filled" readonly>
+        </div>
+        <br>
+        <div class="input_detail">
+            <label for="register-author"><i class="fa-solid fa-user"></i></label>
+            <input type="text" id="register-author" class="input_filled" readonly>
         </div>
         <br>
         <div class="input_detail">

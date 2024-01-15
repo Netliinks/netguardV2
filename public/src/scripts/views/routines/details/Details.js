@@ -183,7 +183,8 @@ export class RoutineRegisters {
                 });
             });
             const previewBox = async (noteId) => {
-                const note = await getEntityData('RoutineRegister', noteId);
+                const register = await getEntityData('RoutineRegister', noteId);
+                console.log(register)
                 renderRightSidebar(UIRightSidebar);
                 const sidebarContainer = document.getElementById('entity-editor-container');
                 const closeSidebar = document.getElementById('close');
@@ -192,30 +193,31 @@ export class RoutineRegisters {
                 });
                 // RoutineRegister details
                 const _details = {
-                    picture: document.getElementById('note-picture-placeholder'),
-                    title: document.getElementById('note-title'),
-                    content: document.getElementById('note-content'),
-                    author: document.getElementById('note-author'),
-                    authorId: document.getElementById('note-author-id'),
+                    picture: document.getElementById('register-picture-placeholder'),
+                    content: document.getElementById('register-content'),
+                    routine: document.getElementById('register-routine'),
+                    schedule: document.getElementById('register-schedule'),
+                    locationLat: document.getElementById('register-location-lat'),
+                    locationLong: document.getElementById('register-location-long'),
+                    author: document.getElementById('register-author'),
                     date: document.getElementById('creation-date'),
                     time: document.getElementById('creation-time')
                 };
                 //const image = await getFile(note.attachment);
-                const noteCreationDateAndTime = note.creationDate.split('T');
-                const noteCreationTime = noteCreationDateAndTime[1];
-                const noteCreationDate = noteCreationDateAndTime[0];
-                _details.title.innerText = note.title;
-                _details.content.innerText = note.content;
-                _details.author.value = `${note.user.firstName} ${note.user.lastName}`;
-                _details.authorId.value = note.createdBy;
-                _details.date.value = noteCreationDate;
-                _details.time.value = noteCreationTime;
-                if (note.attachment !== undefined) {
-                    const image = await getFile(note.attachment);
+                _details.content.innerText = register?.observation ?? '';
+                _details.routine.value = register?.routine?.name ?? '';
+                _details.schedule.value = register?.routineSchedule?.name ?? '';
+                _details.locationLat.value = `Lat: ${register?.latitude ?? ''}`;
+                _details.locationLong.value = `Lng: ${register?.longitude ?? ''}`;
+                _details.author.value = register?.user?.username ?? ''
+                _details.date.value = register?.creationDate ?? '';
+                _details.time.value = register?.creationTime ?? '';
+                if (register.attachment !== undefined) {
+                    const image = await getFile(register.attachment);
                     _details.picture.innerHTML = `
-                    <img id="note-picture" width="100%" class="note_picture margin_b_8" src="${image}">
+                    <img id="register-picture" width="100%" class="note_picture margin_b_8" src="${image}">
                 `;
-                this.zoom(note);
+                this.zoom(register);
                 }
             };
         };
@@ -226,8 +228,8 @@ export class RoutineRegisters {
                 new CloseDialog().x(editor);
             });
         };
-        this.zoom = (note) => {
-            const picture = document.getElementById('note-picture');
+        this.zoom = (register) => {
+            const picture = document.getElementById('register-picture');
             const close = document.getElementById("close-modalZoom");
             const modalZoom = document.getElementById('modalZoom');
             picture.addEventListener('click', () => {
@@ -239,7 +241,7 @@ export class RoutineRegisters {
                 const caption = document.getElementById('caption');
                 modalZoom.style.display = 'block';
                 img01.src = picture.src;
-                caption.innerHTML = `${note?.title ?? ''}`;
+                caption.innerHTML = `Imagen`;
             });
             close.addEventListener('click', () => {
                 modalZoom.style.display = 'none';

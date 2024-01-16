@@ -38,8 +38,11 @@ export const tableLayout = `
         <th><span data-type="time">
           Tiempo <i class="fa-regular fa-filter"></i>
         </span></th>
-        <th><span data-type="distance">
+        <th><span data-type="frequency">
           Frecuencia (min) <i class="fa-regular fa-filter"></i>
+        </span></th>
+        <th><span data-type="distamce">
+          Distancia (mtrs) <i class="fa-regular fa-filter"></i>
         </span></th>
         <th class="header_filled"></th>
       </tr></thead>

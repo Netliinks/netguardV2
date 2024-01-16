@@ -151,6 +151,7 @@ export class Locations {
           <td>${location.name}</dt>
           <td>${location.cords}</dt>
           <td>${location.scheduleTime} - ${location.scheduleTimeEnd ?? ''}</dt>
+          <td>${location?.frequency ?? 0}</dt>
           <td>${location?.distance ?? 0}</dt>
           <td class="entity_options">
           <button class="button" id="edit-entity" data-entityId="${location.id}">
@@ -292,18 +293,25 @@ export class Locations {
                 </div>
             </div>
             <br>
-            <div class="material_input">
-              <label for="entity-distance">Frecuencia (minutos)</label>
-              <br>
-              <br>
-                <select class="input_filled" id="entity-distance">
-                    <option value="10" selected>10</option>
-                    <option value="15">15</option>
-                    <option value="30">30</option>
-                    <option value="60">60</option>
-                </select>
-              
-            </div>       
+            <div class="form_group">
+                <div class="form_input">
+                  <label class="form_label" for="entity-distance">Distancia (metros)</label>
+                  <select class="input_time input_time-start" id="entity-distance">
+                      <option value="5" selected>5</option>
+                      <option value="10">10</option>
+                  </select>
+                </div>
+
+                <div class="form_input">
+                  <label class="form_label" for="entity-frequency">Frecuencia (minutos)</label>
+                  <select class="input_time input_time-end" id="entity-frequency">
+                      <option value="10" selected>10</option>
+                      <option value="15">15</option>
+                      <option value="30">30</option>
+                      <option value="60">60</option>
+                  </select>
+                </div>
+            </div>    
           </div>
         </div>
             
@@ -338,6 +346,7 @@ export class Locations {
                     cords: document.getElementById('entity-cords'),
                     scheduleTime: document.getElementById('entity-scheduleTime'),
                     scheduleTimeEnd: document.getElementById('entity-scheduleTimeEnd'),
+                    frequency: document.getElementById('entity-frequency'),
                     distance: document.getElementById('entity-distance'),
 
                 };
@@ -352,6 +361,7 @@ export class Locations {
                     "cords": `${inputsCollection.cords.value}`,
                     'latitude' : `${latitud}`,
                     'longitude' : `${longitud}`,
+                    "frequency": `${inputsCollection.frequency.value}`,  
                     "distance": `${inputsCollection.distance.value}`,  
                     "business": {
                         "id": `${businessData.business.id}`
@@ -513,18 +523,25 @@ export class Locations {
                 </div>
               </div>
               <br>
-              <div class="material_input">
-                <label for="entity-distance">Frecuencia (minutos)</label>
-                <br>
-                <br>
-                  <select class="input_filled" id="entity-distance">
-                    <option value="10" selected>10</option>
-                    <option value="15">15</option>
-                    <option value="30">30</option>
-                    <option value="60">60</option>
-                  </select>
-              
-              </div>  
+              <div class="form_group">
+                  <div class="form_input">
+                    <label class="form_label" for="entity-distance">Distancia (metros)</label>
+                    <select class="input_time input_time-start" id="entity-distance">
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                    </select>
+                  </div>
+
+                  <div class="form_input">
+                    <label class="form_label" for="entity-frequency">Frecuencia (minutos)</label>
+                    <select class="input_time input_time-end" id="entity-frequency">
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="60">60</option>
+                    </select>
+                  </div>
+              </div>
               <div style="display:flex;justify-content:center">
                     <img alt="Código QR ${data?.name.trim() ?? ''}" id="qrcode">
                     <br>
@@ -547,6 +564,7 @@ export class Locations {
           //console.log(longitud)
           inputObserver();
           document.getElementById("entity-distance").value = data?.distance;
+          document.getElementById("entity-frequency").value = data?.frequency;
           initAutocomplete(latitud, longitud, 20);
           this.close();
           const qr = document.getElementById("qrcode");
@@ -582,6 +600,7 @@ export class Locations {
             scheduleTimeEnd: document.getElementById('entity-scheduleTimeEnd'),
             // @ts-ignore
             distance: document.getElementById('entity-distance'),
+            frequency: document.getElementById('entity-frequency'),
 
         };
           updateButton.addEventListener('click', () => {
@@ -596,6 +615,7 @@ export class Locations {
                 "scheduleTimeEnd": `${$value.scheduleTimeEnd.value}`,
                 // @ts-ignore
                 "distance": `${$value.distance.value}`,
+                "frequency": `${$value.frequency.value}`,
             });
             if($value.name.value == "" || $value.name.value == undefined){
               alert("Nombre de Ubicación vacía");

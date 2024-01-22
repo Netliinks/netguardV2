@@ -1,5 +1,6 @@
 // Views
 import { Config } from ".././Configs.js";
+import { currentDateTime } from ".././tools.js";
 import { Dashboard } from "../views/dashboard/dashboard.js";
 import { Notes } from "../views/binnacle/notes/NotesView.js";
 import { Guards } from "../views/users/guards/guards.js";
@@ -257,9 +258,9 @@ renders() {
     document.getElementById('render-assistControl')?.addEventListener('click', () => {
       new AssistControl().render(Config.offset, Config.currentPage, "");
     });
-    // render AssistControl
+    // render AssistGestion
     document.getElementById('render-assistGestion')?.addEventListener('click', () => {
-      new AssistGestion().render();
+      new AssistGestion().render("", currentDateTime().date);
   });
     // render AssistControl
     document.getElementById('render-events')?.addEventListener('click', () => {

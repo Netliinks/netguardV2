@@ -394,3 +394,91 @@ export const fillBtnPagination = (currentPage, color) => {
     if(btnActive) btnActive.style.backgroundColor = color;
     //btnActive.focus();
 };
+
+export const currentDateTime = () => {
+    const _date = new Date();
+    // TIME
+    const _hours = _date.getHours();
+    const _minutes = _date.getMinutes();
+    const _seconds = _date.getSeconds();
+    const _fixedHours = ('0' + _hours).slice(-2);
+    const _fixedMinutes = ('0' + _minutes).slice(-2);
+    const _fixedSeconds = ('0' + _seconds).slice(-2);
+    const currentTime = `${_fixedHours}:${_fixedMinutes}:${_fixedSeconds}`;
+    // DATE
+    const _day = _date.getDate();
+    const _month = _date.getMonth() + 1;
+    const _year = _date.getFullYear();
+    const date = `${_year}-${('0' + _month).slice(-2)}-${('0' + _day).slice(-2)}`;
+    return {
+        date: date,
+        time: currentTime
+    }
+}
+
+export const calculateGestionMarcation = (assistControl) => {
+    let objDate = {}
+    let arrayAssist= []
+    assistControl.forEach((marcation) => {
+        let date = marcation.ingressDate+" "+marcation.user?.username ?? ''
+        if (objDate[date]) {
+            objDate[date].push(marcation);
+        } else {
+            objDate[date] = [marcation];
+        }
+    })
+    //console.log(objDate)
+
+    let key = Object.keys(objDate)
+    for(let i = 0; i < key.length; i++){
+        let objects = objDate[key[i]]
+        //console.log(objects)
+        //console.log(objects.length)
+        let valueMax = []
+        objects.map(element => {
+            if(element.marcationState.name == 'Finalizado' && (element.egressTime != '' || element.egressTime != null || element.egressTime != undefined)){
+                valueMax.push(element)
+            }
+            
+            })
+        let maxDate = new Date(
+            Math.max(
+                ...valueMax.map(element => {
+                    return new Date(element.egressDate+" "+element.egressTime);
+                }),
+            ),
+            );
+            let minDate = new Date(
+            Math.min(
+                ...objects.map(element => {
+                return new Date(element.ingressDate+" "+element.ingressTime);
+                }),
+            ),
+            );
+            //console.log("max "+maxDate)
+            //console.log("min "+minDate)
+            const format = (date) => {
+            var year = date.getFullYear();
+            var month = ("0" + (date.getMonth() + 1)).slice(-2);
+            var day = ("0" + date.getDate()).slice(-2);
+
+            var hours = ("0" + date.getHours()).slice(-2);
+            var minutes = ("0" + date.getMinutes()).slice(-2);
+            var seconds = ("0" + date.getSeconds()).slice(-2);
+            return `${hours}:${minutes}:${seconds}`
+            }
+            let fechaSalida = ""
+            if(!isNaN(maxDate)) fechaSalida = format(maxDate)
+            let obj = {
+            "firstName": `${objects[0]?.user?.firstName ?? ''}`,
+            "lastName": `${objects[0]?.user?.lastName ?? ''}`,
+            "dni": `${objects[0]?.user?.dni ?? ''}`,
+            "ingressDate": `${objects[0].ingressDate}`,
+            "egressDate": `${objects[0].egressDate}`,
+            "ingressTime": `${format(minDate)}`,
+            "egressTime": `${fechaSalida}`,
+        };
+        arrayAssist.push(obj);
+    }
+    return arrayAssist;
+}

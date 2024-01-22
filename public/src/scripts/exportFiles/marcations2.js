@@ -33,7 +33,7 @@ export const exportMarcationsPdf = (ar, start, end) => {
     for (let i = 0; i < ar.length; i++) {
         let marcation = ar[i];
         // @ts-ignore
-        if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
+        //if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(0, 0, 0);
@@ -67,7 +67,7 @@ export const exportMarcationsPdf = (ar, start, end) => {
                 doc.text(10, 290, `Página ${pagina}`);
             }
             lineas++;
-        }
+        //}
     }
     // Save the PDF
     var d = new Date();
@@ -79,7 +79,7 @@ export const exportMarcationsCsv = (ar, start, end) => {
     for (let i = 0; i < ar.length; i++) {
         let marcation = ar[i];
         // @ts-ignore
-        if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
+        //if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
             let obj = {
                 "DNI": `${marcation?.dni ?? ''}`,
                 "Usuario": `${marcation?.firstName ?? ''} ${marcation?.lastName ?? ''}`,
@@ -88,7 +88,7 @@ export const exportMarcationsCsv = (ar, start, end) => {
                 "última Marcación": `${marcation?.egressTime ?? ''}`,
             };
             rows.push(obj);
-        }
+        //}
     }
     generateFile(rows, "GestMarc", "csv");
 };
@@ -97,7 +97,7 @@ export const exportMarcationsXls = (ar, start, end) => {
     for (let i = 0; i < ar.length; i++) {
         let marcation = ar[i];
         // @ts-ignore
-        if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
+        //if (marcation.ingressDate >= start && marcation.ingressDate <= end) {
             let obj = {
                 "DNI": `${marcation?.dni ?? ''}`,
                 "Usuario": `${marcation?.firstName ?? ''} ${marcation?.lastName ?? ''}`,
@@ -106,7 +106,7 @@ export const exportMarcationsXls = (ar, start, end) => {
                 "última Marcación": `${marcation?.egressTime ?? ''}`,
             };
             rows.push(obj);
-        }
+        //}
     }
     generateFile(rows, "GestMarc", "xls");
 };

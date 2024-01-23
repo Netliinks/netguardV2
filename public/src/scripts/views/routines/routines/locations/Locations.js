@@ -441,7 +441,7 @@ export class Locations {
             });
             map.addListener('click', function(event) {
                 let location = event.latLng;
-                console.log(location)
+                //console.log(location)
                 if (marker1) {
                     marker1.setPosition(location);
                   } else {
@@ -578,7 +578,7 @@ export class Locations {
                 level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
             });
             download(qr, data);
-          UUpdate(entityID, latitud, longitud);
+          UUpdate(entityID);
       };
       const download = (qr, data) => {
         const btnDescargar = document.getElementById('btnDescargar');
@@ -589,7 +589,7 @@ export class Locations {
             enlace.click();
         });
     };
-      const UUpdate = async (entityId, latitud, longitud) => {
+      const UUpdate = async (entityId) => {
           const updateButton = document.getElementById('update-changes');
           const $value = {
             // @ts-ignore
@@ -602,8 +602,14 @@ export class Locations {
             distance: document.getElementById('entity-distance'),
             frequency: document.getElementById('entity-frequency'),
 
-        };
+          };
           updateButton.addEventListener('click', () => {
+            const coords = $value.cords.value.split(',');
+            //console.log(coords)
+            const latitud = parseFloat(coords[0].trim());
+            //console.log(latitud)
+            const longitud = parseFloat(coords[1].trim());
+            //console.log(longitud)
             let raw = JSON.stringify({
                 // @ts-ignore
                 "name": `${$value.name.value}`,
@@ -690,7 +696,7 @@ export class Locations {
           });
           map.addListener('click', function(event) {
               let location = event.latLng;
-              console.log(location)
+              //console.log(location)
               if (marker1) {
                   marker1.setPosition(location);
                 } else {

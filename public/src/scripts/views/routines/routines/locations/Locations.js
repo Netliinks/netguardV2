@@ -275,7 +275,7 @@ export class Locations {
             <div class="elemento" style ="flex: 0.6">
             <div class="material_input">
               <input type="text" id="entity-name" autocomplete="none">
-              <label for="entity-name">Ubicación</label>
+              <label for="entity-name">Nombre Ubicación</label>
             </div>
             <div class="material_input">
               <input type="text" id="entity-cords" autocomplete="none" readonly>
@@ -502,7 +502,7 @@ export class Locations {
                   id="entity-name"
                   class="input_filled"
                   value="${data?.name ?? ''}">
-                <label for="entity-name">Ubicación</label>
+                <label for="entity-name">Nombre Ubicación</label>
               </div>
               <div class="material_input">
                 <input type="text"

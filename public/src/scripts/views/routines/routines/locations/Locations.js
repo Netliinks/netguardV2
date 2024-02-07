@@ -236,6 +236,16 @@ export class Locations {
             renderInterface();
         });
         const renderInterface = async () => {
+            let lat = -2.186790330550842;
+            let long = -79.8948977850493;
+            let zoom = 13
+            if(infoPage.count != 0){
+              lat = parseFloat(dataPage[0].latitude);
+              //console.log(lat)
+              long = parseFloat(dataPage[0].longitude);
+              //console.log(long)
+              zoom = 20;
+            }
             let fecha = new Date(); //Fecha actual
             let mes = fecha.getMonth()+1; //obteniendo mes
             let dia = fecha.getDate(); //obteniendo dia
@@ -278,8 +288,8 @@ export class Locations {
               <label for="entity-name">Nombre Ubicación</label>
             </div>
             <div class="material_input">
-              <input type="text" id="entity-cords" autocomplete="none" readonly>
-              <label for="entity-cords">Coordenadas</label>
+              <input type="text" id="entity-cords" autocomplete="none" value="${lat}, ${long}">
+              <label for="entity-cords">Coordenadas [Lat, long]</label>
             </div>
             <div class="form_group">
                 <div class="form_input">
@@ -326,16 +336,6 @@ export class Locations {
       `;
             // @ts-ignore
             inputObserver();
-            let lat = -2.186790330550842;
-            let long = -79.8948977850493;
-            let zoom = 13
-            if(infoPage.count != 0){
-              lat = parseFloat(dataPage[0].latitude);
-              //console.log(lat)
-              long = parseFloat(dataPage[0].longitude);
-              //console.log(long)
-              zoom = 20;
-            }
             initAutocomplete(lat, long, zoom);
             this.close();
             const registerButton = document.getElementById('register-entity');
@@ -508,8 +508,8 @@ export class Locations {
                 <input type="text"
                   id="entity-cords"
                   class="input_filled"
-                  value="${data?.cords ?? ''}" readonly>
-                <label for="entity-cords">Coordenadas</label>
+                  value="${data?.cords ?? ''}">
+                <label for="entity-cords">Coordenadas [Lat, long]</label>
               </div>
               <div class="form_group">
                 <div class="form_input">

@@ -5,10 +5,10 @@
 //
 import { Config } from "../../../Configs.js";
 import { getEntityData, getFile, getFilterEntityData, getFilterEntityCount } from "../../../endpoints.js";
-import { CloseDialog, renderRightSidebar, filterDataByHeaderType, inputObserver, pageNumbers, fillBtnPagination } from "../../../tools.js";
+import { CloseDialog, renderRightSidebar, filterDataByHeaderType, inputObserver, pageNumbers, fillBtnPagination, calculateLine } from "../../../tools.js";
 import { UIContentLayout, UIRightSidebar } from "./Layout.js";
 import { UITableSkeletonTemplate } from "./Template.js";
-import { exportReportCsv, exportReportPdf, exportReportXls } from "../../../exportFiles/reports.js";
+import { exportRoutineDetailCsv, exportRoutineDetailPdf, exportRoutineDetailXls } from "../../../exportFiles/routines_details.js";
 // Local configs
 const tableRows = Config.tableRows;
 let currentPage = Config.currentPage;
@@ -105,7 +105,7 @@ export class RoutineRegisters {
             this.searchNotes(tableBody /*, notesArray*/);
             new filterDataByHeaderType().filter();
             this.pagination(notesArray, tableRows, infoPage.currentPage);
-            //this.export();
+            this.export();
             // Rendering icons
         };
         this.load = (tableBody, currentPage, notes) => {
@@ -132,10 +132,9 @@ export class RoutineRegisters {
                     let register = paginatedItems[i]; // getting note items
                     let row = document.createElement('TR');
                     row.innerHTML += `
-                    <td>${register?.routine?.name ?? ''}</td>
-                    <td>${register?.routineSchedule?.name ?? ''}</td>
-                    <td>${register?.user?.username ?? ''}</td>
-                    <td>${register?.cords ?? ''}</td>
+                    <td>${calculateLine(register?.routine?.name, 40)}</td>
+                    <td>${calculateLine(register?.routineSchedule?.name, 40)}</td>
+                    <td>${calculateLine(register?.user?.username, 40)}</td>
                     <td id="table-date">${register?.creationDate ?? ''} ${register?.creationTime ?? ''}</td>
                     <td>
                         <button class="button" id="entity-details" data-entityId="${register.id}">
@@ -330,57 +329,56 @@ export class RoutineRegisters {
                                     {
                                         "property": "creationDate",
                                         "operator": ">=",
-                                        "value": `${_values.start.value}T00:00:00`
+                                        "value": `${_values.start.value}`
                                     },
                                     {
                                         "property": "creationDate",
                                         "operator": "<=",
-                                        "value": `${_values.end.value}T23:59:59`
+                                        "value": `${_values.end.value}`
                                     }
                                 ],
                             },
                             sort: "-createdDate",
                             fetchPlan: 'full',
                         });
-                        const notes = await getFilterEntityData("RoutineRegister", rawExport); //await GetNotes();
+                        const registers = await getFilterEntityData("RoutineRegister", rawExport); //await GetNotes();
                         for (let i = 0; i < _values.exportOption.length; i++) {
                             let ele = _values.exportOption[i];
                             if (ele.type = "radio") {
                                 if (ele.checked) {
                                     if (ele.value == "xls") {
                                         // @ts-ignore
-                                        exportReportXls(notes, _values.start.value, _values.end.value);
+                                        exportRoutineDetailXls(registers, _values.start.value, _values.end.value);
                                     }
                                     else if (ele.value == "csv") {
                                         // @ts-ignore
-                                        exportReportCsv(notes, _values.start.value, _values.end.value);
+                                        exportRoutineDetailCsv(registers, _values.start.value, _values.end.value);
                                     }
                                     else if (ele.value == "pdf") {
                                         let rows = [];
-                                        for (let i = 0; i < notes.length; i++) {
-                                            let note = notes[i];
-                                            let noteCreationDateAndTime = note.creationDate.split('T');
-                                            let noteCreationDate = noteCreationDateAndTime[0];
-                                            let noteCreationTime = noteCreationDateAndTime[1];
+                                        for (let i = 0; i < registers.length; i++) {
+                                            let register = registers[i];
                                             // @ts-ignore
                                             //if (noteCreationDate >= _values.start.value && noteCreationDate <= _values.end.value) {
                                                 let image = '';
-                                                if (note.attachment !== undefined) {
-                                                    image = await getFile(note.attachment);
+                                                if (register.attachment !== undefined) {
+                                                    image = await getFile(register.attachment);
                                                 }
                                                 let obj = {
-                                                    "titulo": `${note.title.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
-                                                    "fecha": `${noteCreationDate}`,
-                                                    "hora": `${noteCreationTime}`,
-                                                    "usuario": `${note.user?.firstName ?? ''} ${note.user?.lastName ?? ''}`,
-                                                    "contenido": `${note.content.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
+                                                    "rutina": `${register?.routine?.name.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
+                                                    "ubicacion": `${register?.routineSchedule?.name.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim()}`,
+                                                    "fecha": `${register.creationDate}`,
+                                                    "hora": `${register.creationTime}`,
+                                                    "cords": `${register?.cords ?? ''}`,
+                                                    "usuario": `${register.user?.firstName ?? ''} ${register.user?.lastName ?? ''}`,
+                                                    "observacion": `${register?.observation?.split("\n").join(". ").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF]/g, '').trim() ?? ''}`,
                                                     "imagen": `${image}`
                                                 };
                                                 rows.push(obj);
                                             //}
                                         }
                                         // @ts-ignore
-                                        exportReportPdf(rows, _values.start.value, _values.end.value);
+                                        exportRoutineDetailPdf(rows, _values.start.value, _values.end.value);
                                     }
                                 }
                             }

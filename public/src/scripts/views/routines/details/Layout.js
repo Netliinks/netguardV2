@@ -14,7 +14,7 @@ export const UIContentLayout = `
                     id="btnSearch">
                     <i class="fa-solid fa-search"></i>
                 </button>
-                <!-- <button class="datatable_button import_user" id="export-entities">Exportar</button> -->
+                <button class="datatable_button import_user" id="export-entities">Exportar</button>
             </div>
         </div>
 
@@ -30,10 +30,6 @@ export const UIContentLayout = `
 
             <th><span data-type="user">
             Usuario <i class="fa-regular fa-filter"></i>
-            </span></th>
-
-            <th><span data-type="cords">
-            Coordenadas <i class="fa-regular fa-filter"></i>
             </span></th>
 
             <th class="thead_centered" width=220><span data-type="date">

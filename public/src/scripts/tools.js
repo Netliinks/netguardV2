@@ -535,3 +535,16 @@ export const calculateGestionMarcation = (assistControl) => {
     }
     return arrayAssist;
 }
+
+export const calculateLine = (text, limit) => {
+    if(text != undefined){
+        if(text.length <= limit){
+            return text;
+        }else{
+            return text.slice(0, limit)+"...";
+        }
+    }else{
+        return '';
+    }
+    
+}

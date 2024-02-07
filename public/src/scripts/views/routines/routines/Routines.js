@@ -437,14 +437,14 @@ export class Routines {
               const dialogContent = document.getElementById('dialog-content');
               deleteButton.onclick = async() => {
                   const locations = await getDetails('routine.id', entityId, 'RoutineSchedule');
-                  if(locations.length != 0){
+                  if(locations.length != 0 && locations != undefined){
                     for(let i=0; i<locations.length; i++){
                       deleteEntity('RoutineSchedule', locations[i].id);
                     }
                   }
 
                   const guards = await getDetails('routine.id', entityId, 'RoutineUser');
-                  if(guards.length != 0){
+                  if(guards.length != 0 && guards != undefined){
                     for(let i=0; i<guards.length; i++){
                       deleteEntity('RoutineUser', guards[i].id);
                     }

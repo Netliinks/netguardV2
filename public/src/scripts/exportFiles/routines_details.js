@@ -129,7 +129,7 @@ export const exportRoutineDetailCsv = (ar, start, end) => {
             rows.push(obj);
         //}
     }
-    generateFile(rows, "Reportes", "csv");
+    generateFile(rows, "DetallesRutinas", "csv");
 };
 export const exportRoutineDetailXls = (ar, start, end) => {
     let rows = [];
@@ -149,7 +149,7 @@ export const exportRoutineDetailXls = (ar, start, end) => {
             rows.push(obj);
         //}
     }
-    generateFile(rows, "Reportes", "xls");
+    generateFile(rows, "DetallesRutinas", "xls");
 };
 const generateFile = (ar, title, extension) => {
     //comprobamos compatibilidad

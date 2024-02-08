@@ -303,7 +303,10 @@ export class Procedures {
         if (sizeMegaBytes > 2) {
           alert(`Archivo no debe exceder los 2 Mb`);
           _fileHandler.value = '';
-        } else {
+        } else if(/\s/.test(_fileHandler.files[0].name)){
+          alert(`Nombre de archivo no debe contener espacios en blanco`);
+          _fileHandler.value = '';
+        }else {
           let file = await setFile(_fileHandler.files[0]);
           let body = JSON.stringify(file);
           let parse = JSON.parse(body);

@@ -390,7 +390,8 @@ export class Fixed {
 
             let day = fecha.getDate();
             day = agregarCeros(day);
-            const month = fecha.getMonth() + 1;
+            let month = fecha.getMonth() + 1;
+            month = agregarCeros(month);
             const year = fecha.getFullYear();
 
             const dateFormat = year + '-' + month + '-' + day;

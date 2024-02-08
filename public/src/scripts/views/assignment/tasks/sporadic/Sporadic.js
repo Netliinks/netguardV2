@@ -65,6 +65,16 @@ const getTakSporadic= async () => {
                         "property": "customer.id",
                         "operator": "=",
                         "value": `${customerId}`
+                    },
+                    {
+                        "property": "taskType",
+                        "operator": "=",
+                        "value": `ESPORADICAS`
+                    },
+                    {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
                     }
                 ]
             },
@@ -345,7 +355,8 @@ export class Sporadic {
        
           let day = fecha.getDate();
           day = agregarCeros(day);
-          const month = fecha.getMonth() + 1; 
+          let month = fecha.getMonth() + 1; 
+          month = agregarCeros(month);
           const year = fecha.getFullYear();
 
           const dateFormat = year + '-' + month + '-' + day;

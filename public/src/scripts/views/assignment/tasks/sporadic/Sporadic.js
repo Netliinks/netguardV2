@@ -65,6 +65,16 @@ const getTakSporadic= async () => {
                         "property": "customer.id",
                         "operator": "=",
                         "value": `${customerId}`
+                    },
+                    {
+                        "property": "taskType",
+                        "operator": "=",
+                        "value": `ESPORADICAS`
+                    },
+                    {
+                        "property": "user.userType",
+                        "operator": "=",
+                        "value": `GUARD`
                     }
                 ]
             },

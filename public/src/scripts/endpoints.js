@@ -177,7 +177,8 @@ export const registerEntity = async (raw, type) => {
         redirect: 'follow'
     };
     fetch(req.url + type, requestOptions)
-        .then(res => res.json());
+        .then(res => res.json())
+        .catch(err => console.error('Error:' + err));
 };
 export const filterEntities = async (user) => { };
 export const setPassword = async (raw) => {

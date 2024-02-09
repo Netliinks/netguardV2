@@ -548,3 +548,56 @@ export const calculateLine = (text, limit) => {
     }
     
 }
+
+export const equivalentTime = (time) => {
+    if(time == '13'){
+        return 1;
+    }else if(time == '14'){
+        return 2;
+    }else if(time == '15'){
+        return 3;
+    }else if(time == '16'){
+        return 4;
+    }else if(time == '17'){
+        return 5;
+    }else if(time == '18'){
+        return 6;
+    }else if(time == '19'){
+        return 7;
+    }else if(time == '20'){
+        return 8;
+    }else if(time == '21'){
+        return 9;
+    }else if(time == '22'){
+        return 10;
+    }else if(time == '23'){
+        return 11;
+    }else if(time == '00'){
+        return 12;
+    }else if(time == '01'){
+        return 13;
+    }else if(time == '02'){
+        return 14;
+    }else if(time == '03'){
+        return 15;
+    }else if(time == '04'){
+        return 16;
+    }else if(time == '05'){
+        return 17;
+    }else if(time == '06'){
+        return 18;
+    }else if(time == '07'){
+        return 19;
+    }else if(time == '08'){
+        return 20;
+    }else if(time == '09'){
+        return 21;
+    }else if(time == '10'){
+        return 22;
+    }else if(time == '11'){
+        return 23;
+    }else if(time == '12'){
+        return 0;
+    }
+    
+}

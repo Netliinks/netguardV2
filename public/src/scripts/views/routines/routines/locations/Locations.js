@@ -1,6 +1,6 @@
 // @filename: locations.ts
 import { deleteEntity, getEntitiesData, registerEntity, updateEntity, getEntityData, getFilterEntityData, getFilterEntityCount, getUserInfo } from "../../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, pageNumbers, fillBtnPagination, currentDateTime } from "../../../../tools.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, pageNumbers, fillBtnPagination, currentDateTime, getDetails, equivalentTime } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
@@ -127,6 +127,7 @@ export class Locations {
     }
 
     load(table, currentPage, data) {
+        createRoutines('INS', routine.id)
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -817,3 +818,80 @@ export class Locations {
     console.time(FNewUsers);
     console.groupEnd();
 };*/
+const createRoutines = async (mode, routineId) => {
+  const insertTimes = (ubications) => {
+    console.log(ubications.scheduleTime);
+    console.log(ubications.scheduleTimeEnd);
+    const timeIni = ubications.scheduleTime.split(":");
+    const timeEnd = ubications.scheduleTimeEnd.split(":");
+    //console.log(timeIni[0]);
+    ////console.log(timeIni[1]);
+    //console.log(ubications.frequency);
+    //console.log(parseInt(timeIni[1]) + ubications.frequency);
+    if(timeEnd[0] <= 9 && timeIni[0] > timeEnd[0]){
+      console.log("caso 1");
+      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
+      const limit = equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]);
+    }else if(timeEnd[0] >= 10 && timeIni[0] > timeEnd[0]){
+      console.log("caso 2");
+      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
+    }else if(timeIni[0] < timeEnd[0]){
+      console.log("caso 3");
+    }else if(timeIni[0] == timeEnd[0]){
+      console.log("caso 4");
+    }
+    /*do {
+      i = i + 1;
+      result = result + i;
+    } while (timeEnd[] < 5);*/
+    /*let total = parseInt(timeIni[1]) + ubications.frequency;
+
+    if(total > 59){
+      let minRest = total - 60; //minutos restantes
+      if(minRest < 10) minRest = "0"+minRest;
+      console.log("minrest "+minRest);
+      const raw = JSON.stringify({ 
+        "business": {
+            "id": `${ubications.business.id}`
+        },                 
+        "customer": {
+            "id": `${customerId}`
+        },
+        "routine": {
+          "id": `${routineId}`
+        },
+        "routineSchedule": {
+          "id": `${ubications.id}`
+        },
+        'routineTimePoint': `${timeIni[0]}:${minRest}:00`
+      });
+      registerEntity(raw, 'RoutineTime');
+    }*/
+  }
+
+  const deleteTimes = () => {
+    
+  }
+
+  if(mode == 'INS'){
+    let data = await getDetails("routine.id", routineId, "RoutineSchedule");
+    data.forEach(async (ubications) => {
+      let raw = JSON.stringify({
+        "filter": {
+            "conditions": [
+                {
+                  "property": "routineSchedule.id",
+                  "operator": "=",
+                  "value": `${ubications.id}`
+                },
+            ],
+        },
+        sort: "-createdDate",
+      });
+      let times = await getFilterEntityData("RoutineTime", raw);
+      if(times != undefined && times.length == 0){
+        insertTimes(ubications);
+      }
+    });
+  }
+};

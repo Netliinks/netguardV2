@@ -349,7 +349,7 @@ export class Sporadic {
           const _fileHandler = document.getElementById('file-handler');
           const registerButton = document.getElementById('register-entity');
           const agregarCeros = (numero) => {
-            return day < 10 ? `0${numero}` : numero;
+            return numero < 10 ? `0${numero}` : numero;
           };
           const fecha = new Date();
        

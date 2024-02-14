@@ -382,7 +382,7 @@ export class Fixed {
 
             this.close();
             const agregarCeros = (numero) => {
-                return day < 10 ? `0${numero}` : numero;
+                return numero < 10 ? `0${numero}` : numero;
             };
             const _fileHandler = document.getElementById('file-handler');
             const registerButton = document.getElementById('register-entity');

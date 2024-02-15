@@ -1,6 +1,6 @@
 // @filename: Fixed.ts
 import { deleteEntity, getEntitiesData, getFilterEntityCount, registerEntity, updateEntity, getEntityData, setFile, getUserInfo, getFile, postNotificationPush, getFilterEntityData } from "../../../../endpoints.js";
-import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, fillBtnPagination } from "../../../../tools.js";
+import { inputObserver, inputSelect, CloseDialog, filterDataByHeaderType, fillBtnPagination, searchUniversalSingle, currentDateTime } from "../../../../tools.js";
 import { Config } from "../../../../Configs.js";
 import { tableLayout } from "./Layout.js";
 import { tableLayoutTemplate } from "./Template.js";
@@ -16,7 +16,13 @@ let infoPage = {
     currentPage: currentPage,
     search: ""
 };
+const currentBusiness = async() => {
+    const currentUser = await getUserInfo();
+    const userid = await getEntityData('User', `${currentUser.attributes.id}`);
+    return userid;
+  }
 let dataPage;
+let currentUser;
 const getTakFixed = async () => {
     //nombre de la entidad
     //const takFixed = await getEntitiesData('Task_');
@@ -26,6 +32,7 @@ const getTakFixed = async () => {
 
     //const notesRaw = await getEntitiesData('Note');
     //const notes = notesRaw.filter((data) => data.customer?.id === `${customerId}`);
+    currentUser = await currentBusiness();
     let raw = JSON.stringify({
         "filter": {
             "conditions": [
@@ -332,6 +339,7 @@ export class Fixed {
 
         });
         const renderInterface = async () => {
+            const notification = await searchUniversalSingle("name", "=", "Consigna", "NotificationType");
             this.entityDialogContainer.innerHTML = '';
             this.entityDialogContainer.style.display = 'flex';
             this.entityDialogContainer.innerHTML = `
@@ -484,6 +492,27 @@ export class Fixed {
             const reg = async (raw) => {
                 registerEntity(raw, 'Task_')
                     .then((res) => {
+                        let parse = JSON.parse(raw);
+                        const notify = JSON.stringify({
+                            "user": {
+                                "id": `${currentUser.id}`
+                            },
+                            "customer": {
+                                "id": `${customerId}`
+                            },
+                            "business": {
+                                "id": `${currentUser.business.id}`
+                            },
+                            "title": `${parse.name} | [CONSIGNA]`,
+                            "description": `${parse.description} | ${parse.execTime}`,
+                            "creationDate": `${dateFormat}`,
+                            "creationTime": `${hourFormat}`,
+                            "firebaseId": `${currentDateTime().date}T${currentDateTime().timeHHMMSS}`,
+                            "notificationType": {
+                                "id": `${notification[0].id}`
+                            },
+                        });
+                        registerEntity(notify, 'Notification');
                         setTimeout(async () => {
                             //let data = await getUsers();
                             const tableBody = document.getElementById('datatable-body');
@@ -551,6 +580,7 @@ export class Fixed {
             UUpdate(entityID);
         };
         const UUpdate = async (entityId) => {
+            const notification = await searchUniversalSingle("name", "=", "Consigna", "NotificationType");
             const updateButton = document.getElementById('update-changes');
             const $value = {
                 // @ts-ignore
@@ -594,6 +624,27 @@ export class Fixed {
             const update = async (raw) => {
                 updateEntity('Task_', entityId, raw)
                     .then((res) => {
+                        let parse = JSON.parse(raw);
+                        const notify = JSON.stringify({
+                            "user": {
+                                "id": `${currentUser.id}`
+                            },
+                            "customer": {
+                                "id": `${customerId}`
+                            },
+                            "business": {
+                                "id": `${currentUser.business.id}`
+                            },
+                            "title": `${parse.name} | [CONSIGNA]`,
+                            "description": `${parse.description} | ${parse.execTime}`,
+                            "creationDate": `${currentDateTime().date}`,
+                            "creationTime": `${currentDateTime().timeHHMM}`,
+                            "firebaseId": `${currentDateTime().date}T${currentDateTime().timeHHMMSS}`,
+                            "notificationType": {
+                                "id": `${notification[0].id}`
+                            },
+                        });
+                        registerEntity(notify, 'Notification');
                         setTimeout(async () => {
                             let tableBody;
                             let container;

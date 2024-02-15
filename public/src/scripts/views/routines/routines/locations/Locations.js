@@ -376,7 +376,7 @@ export class Locations {
                     'scheduleTime': `${inputsCollection.scheduleTime.value}`,
                     'scheduleTimeEnd': `${inputsCollection.scheduleTimeEnd.value}`,
                     'creationDate': `${currentDateTime().date}`,
-                    'creationTime': `${currentDateTime().time}`,
+                    'creationTime': `${currentDateTime().timeHHMMSS}`,
                 });
                 if(inputsCollection.name.value == "" || inputsCollection.name.value == undefined){
                   alert("Nombre de Ubicación vacía");

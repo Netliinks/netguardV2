@@ -277,7 +277,7 @@ export class Routines {
                       "id": `${customerId}`},
                     "isActive": `${true}`, //`${inputsCollection.active.checked ? true : false}`,
                     'creationDate': `${currentDateTime().date}`,
-                    'creationTime': `${currentDateTime().time}`,
+                    'creationTime': `${currentDateTime().timeHHMMSS}`,
                 });
                 if(inputsCollection.name.value == '' || inputsCollection.name.value == null || inputsCollection.name.value == undefined){
                   alert("Debe completar el nombre");

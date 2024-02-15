@@ -441,7 +441,7 @@ export class RoutineUsers {
                       "id": `${entityId}`
                     },
                     'creationDate': `${currentDateTime().date}`,
-                    'creationTime': `${currentDateTime().time}`,
+                    'creationTime': `${currentDateTime().timeHHMMSS}`,
                   });
                   registerEntity(raw, 'RoutineUser').then((res) => {
                     setTimeout(() => {

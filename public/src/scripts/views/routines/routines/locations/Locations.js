@@ -127,7 +127,7 @@ export class Locations {
     }
 
     load(table, currentPage, data) {
-        createRoutines('INS', routine.id)
+        //createRoutines('INS', routine.id)
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -818,7 +818,7 @@ export class Locations {
     console.time(FNewUsers);
     console.groupEnd();
 };*/
-const createRoutines = async (mode, routineId) => {
+/*const createRoutines = async (mode, routineId) => {
   const insertTimes = (ubications) => {
     console.log(ubications.scheduleTime);
     console.log(ubications.scheduleTimeEnd);
@@ -867,7 +867,7 @@ const createRoutines = async (mode, routineId) => {
       });
       registerEntity(raw, 'RoutineTime');
     }*/
-  }
+  /*}
 
   const deleteTimes = () => {
     
@@ -894,4 +894,4 @@ const createRoutines = async (mode, routineId) => {
       }
     });
   }
-};
+};*/

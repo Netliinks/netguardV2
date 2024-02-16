@@ -574,6 +574,8 @@ export const equivalentTime = (time) => {
         return 10;
     }else if(time == '23'){
         return 11;
+    }else if(time == '24'){
+        return 0;
     }else if(time == '00'){
         return 12;
     }else if(time == '01'){

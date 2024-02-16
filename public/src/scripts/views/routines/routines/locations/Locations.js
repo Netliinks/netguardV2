@@ -127,7 +127,7 @@ export class Locations {
     }
 
     load(table, currentPage, data) {
-        //createRoutines('INS', routine.id)
+        createRoutines('INS', routine.id)
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -818,56 +818,56 @@ export class Locations {
     console.time(FNewUsers);
     console.groupEnd();
 };*/
-/*const createRoutines = async (mode, routineId) => {
+const agregarCero = (valor) => {
+  valor < 10 ? valor = "0"+valor : valor;
+  return valor;
+}
+const calcularMinutos= (hora, frecuencia) => {
+  let minutos = hora * 60;
+  return Math.ceil(minutos / frecuencia);
+}
+let timesResults = [];
+const createRoutines = async (mode, routineId) => {
   const insertTimes = (ubications) => {
     console.log(ubications.scheduleTime);
     console.log(ubications.scheduleTimeEnd);
+    console.log("frec "+ubications.frequency);
     const timeIni = ubications.scheduleTime.split(":");
     const timeEnd = ubications.scheduleTimeEnd.split(":");
-    //console.log(timeIni[0]);
-    ////console.log(timeIni[1]);
-    //console.log(ubications.frequency);
-    //console.log(parseInt(timeIni[1]) + ubications.frequency);
-    if(timeEnd[0] <= 9 && timeIni[0] > timeEnd[0]){
+    if(timeIni[0] > timeEnd[0]){
       console.log("caso 1");
-      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
-      const limit = equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]);
-    }else if(timeEnd[0] >= 10 && timeIni[0] > timeEnd[0]){
-      console.log("caso 2");
-      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
+      const hoursDiff = equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]);
+      timesResults.push(ubications.scheduleTime);
+      console.log(hoursDiff);
+      let minAdd = timeIni[1];
+      let minRest = 0;
+      let hourAdd = 0;
+      for(let i=0; i < calcularMinutos(hoursDiff, ubications.frequency); i++){
+        minAdd = parseInt(minAdd) + ubications.frequency;
+        console.log("añadido "+minAdd);
+        
+        if(parseInt(minAdd) > 59){
+          minRest = minAdd - 60; //minutos restantes
+          hourAdd += 1;
+          minAdd = 0;
+          timesResults.push(agregarCero(equivalentTime((parseInt(timeIni[0]) + hourAdd)))+":"+agregarCero(minRest)+":00");
+        }else{
+          timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minAdd)+":00");
+        }
+      }
+      /*do {
+        i = i + 1;
+        result = result + i;
+      } while (timeEnd[] > 60);*/
+    
+      console.log(timesResults);
+      //calculando minutos
     }else if(timeIni[0] < timeEnd[0]){
-      console.log("caso 3");
+      console.log("caso 2");
     }else if(timeIni[0] == timeEnd[0]){
-      console.log("caso 4");
+      console.log("caso 3");
     }
-    /*do {
-      i = i + 1;
-      result = result + i;
-    } while (timeEnd[] < 5);*/
-    /*let total = parseInt(timeIni[1]) + ubications.frequency;
-
-    if(total > 59){
-      let minRest = total - 60; //minutos restantes
-      if(minRest < 10) minRest = "0"+minRest;
-      console.log("minrest "+minRest);
-      const raw = JSON.stringify({ 
-        "business": {
-            "id": `${ubications.business.id}`
-        },                 
-        "customer": {
-            "id": `${customerId}`
-        },
-        "routine": {
-          "id": `${routineId}`
-        },
-        "routineSchedule": {
-          "id": `${ubications.id}`
-        },
-        'routineTimePoint': `${timeIni[0]}:${minRest}:00`
-      });
-      registerEntity(raw, 'RoutineTime');
-    }*/
-  /*}
+  }
 
   const deleteTimes = () => {
     
@@ -894,4 +894,21 @@ export class Locations {
       }
     });
   }
-};*/
+};
+
+/*const raw = JSON.stringify({ 
+            "business": {
+                "id": `${ubications.business.id}`
+            },                 
+            "customer": {
+                "id": `${customerId}`
+            },
+            "routine": {
+              "id": `${routineId}`
+            },
+            "routineSchedule": {
+              "id": `${ubications.id}`
+            },
+            'routineTimePoint': `${timeIni[0]}:${minRest}:00`
+          });
+          registerEntity(raw, 'RoutineTime');*/

@@ -127,7 +127,7 @@ export class Locations {
     }
 
     load(table, currentPage, data) {
-        createRoutines('INS', routine.id)
+        createRoutines('INS', routine.id, null);
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -579,7 +579,7 @@ export class Locations {
                 level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
             });
             download(qr, data);
-          UUpdate(entityID);
+          UUpdate(entityID, data);
       };
       const download = (qr, data) => {
         const btnDescargar = document.getElementById('btnDescargar');
@@ -590,7 +590,7 @@ export class Locations {
             enlace.click();
         });
     };
-      const UUpdate = async (entityId) => {
+      const UUpdate = async (entityId, data) => {
           const updateButton = document.getElementById('update-changes');
           const $value = {
             // @ts-ignore
@@ -656,9 +656,11 @@ export class Locations {
             updateEntity('RoutineSchedule', entityId, raw)
                 .then((res) => {
                 setTimeout(async () => {
+                    if($value.frequency.value != data.frequency || $value.scheduleTime.value != data?.scheduleTime || $value.scheduleTimeEnd.value != data?.scheduleTimeEnd)
+                      createRoutines('UPD', routine.id, entityId);
                     let tableBody;
                     let container;
-                    let data;
+                    //let data;
                     //data = await getLocations();
                     new CloseDialog()
                         .x(container =
@@ -818,59 +820,105 @@ export class Locations {
     console.time(FNewUsers);
     console.groupEnd();
 };*/
+
+/*if(timeIni[0] > timeEnd[0]){
+  console.log("caso 1");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}else if(timeIni[0] < timeEnd[0]){
+  console.log("caso 2");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}else if(timeIni[0] == timeEnd[0]){
+  console.log("caso 3");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}*/
 const agregarCero = (valor) => {
   valor < 10 ? valor = "0"+valor : valor;
   return valor;
 }
-const calcularMinutos= (hora, frecuencia) => {
-  let minutos = hora * 60;
-  return Math.ceil(minutos / frecuencia);
-}
-let timesResults = [];
-const createRoutines = async (mode, routineId) => {
+
+const createRoutines = async (mode, routineId, scheduleId) => {
   const insertTimes = (ubications) => {
-    console.log(ubications.scheduleTime);
-    console.log(ubications.scheduleTimeEnd);
-    console.log("frec "+ubications.frequency);
-    const timeIni = ubications.scheduleTime.split(":");
-    const timeEnd = ubications.scheduleTimeEnd.split(":");
-    if(timeIni[0] > timeEnd[0]){
-      console.log("caso 1");
-      const hoursDiff = equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]);
-      timesResults.push(ubications.scheduleTime);
-      console.log(hoursDiff);
-      let minAdd = timeIni[1];
-      let minRest = 0;
-      let hourAdd = 0;
-      for(let i=0; i < calcularMinutos(hoursDiff, ubications.frequency); i++){
-        minAdd = parseInt(minAdd) + ubications.frequency;
-        console.log("añadido "+minAdd);
-        
-        if(parseInt(minAdd) > 59){
-          minRest = minAdd - 60; //minutos restantes
-          hourAdd += 1;
-          minAdd = 0;
-          timesResults.push(agregarCero(equivalentTime((parseInt(timeIni[0]) + hourAdd)))+":"+agregarCero(minRest)+":00");
-        }else{
-          timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minAdd)+":00");
-        }
-      }
-      /*do {
-        i = i + 1;
-        result = result + i;
-      } while (timeEnd[] > 60);*/
+    const schedules = calculoTimes(ubications);
+    console.log(schedules);
+    schedules.forEach(async (schedule) => {
+      const raw = JSON.stringify({ 
+        "business": {
+            "id": `${ubications.business.id}`
+        },                 
+        "customer": {
+            "id": `${customerId}`
+        },
+        "routine": {
+          "id": `${routineId}`
+        },
+        "routineSchedule": {
+          "id": `${ubications.id}`
+        },
+        'routineTimePoint': `${schedule}`
+      });
+      registerEntity(raw, 'RoutineTime');
+    });
     
-      console.log(timesResults);
-      //calculando minutos
-    }else if(timeIni[0] < timeEnd[0]){
-      console.log("caso 2");
-    }else if(timeIni[0] == timeEnd[0]){
-      console.log("caso 3");
+  }
+
+  const deleteTimes = (times) => {
+    for(let i=0; i<times.length; i++){
+      deleteEntity('RoutineTime', times[i].id);
     }
   }
 
-  const deleteTimes = () => {
-    
+  const calculoTimes = (ubications) => {
+    let timesResults = [];
+    const timeIni = ubications.scheduleTime.split(":");
+    const timeEnd = ubications.scheduleTimeEnd.split(":");
+    timesResults.push(ubications.scheduleTime);
+    let minAdd = timeIni[1];
+    let minRest = 0;
+    let hourAdd = 0;
+    let validators; 
+    let releaseHour = false;
+    let releaseMin = false;
+    let i = 0;
+    do {
+      minAdd = parseInt(minAdd) + ubications.frequency;
+      validators = timesResults[i].split(":");
+      if((equivalentTime(timeEnd[0]) == equivalentTime(validators[0])) && releaseHour == false){
+        releaseHour = true;
+      }
+
+      if(releaseHour == true && (minAdd > parseInt(timeEnd[1]))){
+        releaseMin = true;
+      }else{
+        if(parseInt(minAdd) > 59){
+          minRest = minAdd - 60; //minutos restantes
+          hourAdd += 1;
+          minAdd = minRest;
+          if((parseInt(timeIni[0]) + hourAdd) > 24){
+            timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd)-24)+":"+agregarCero(minRest)+":00");
+          }else if((parseInt(timeIni[0]) + hourAdd) == 24){
+            timesResults.push(agregarCero(equivalentTime(parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minRest)+":00");
+          }else{
+            timesResults.push(agregarCero(parseInt(timeIni[0]) + hourAdd)+":"+agregarCero(minRest)+":00");
+          }
+
+          
+        }else{
+          if((parseInt(timeIni[0]) + hourAdd) > 24){
+            timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd)-24)+":"+agregarCero(minAdd)+":00");
+          }else if((parseInt(timeIni[0]) + hourAdd) == 24){
+            timesResults.push(agregarCero(equivalentTime(parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minAdd)+":00");
+          }else{
+            timesResults.push(agregarCero(parseInt(timeIni[0]) + hourAdd)+":"+agregarCero(minAdd)+":00");
+          }
+        }
+        i+=1;
+      }
+      
+    } while (releaseMin != true);
+    return timesResults;
   }
 
   if(mode == 'INS'){
@@ -893,22 +941,24 @@ const createRoutines = async (mode, routineId) => {
         insertTimes(ubications);
       }
     });
+  }else if(mode == 'UPD'){
+    const data = await getEntityData("RoutineSchedule", scheduleId);
+    let raw = JSON.stringify({
+      "filter": {
+          "conditions": [
+              {
+                "property": "routineSchedule.id",
+                "operator": "=",
+                "value": `${scheduleId}`
+              },
+          ],
+      },
+      sort: "-createdDate",
+    });
+    let times = await getFilterEntityData("RoutineTime", raw);
+    if(times != undefined && times.length != 0){
+      deleteTimes(times);
+      insertTimes(data);
+    }
   }
 };
-
-/*const raw = JSON.stringify({ 
-            "business": {
-                "id": `${ubications.business.id}`
-            },                 
-            "customer": {
-                "id": `${customerId}`
-            },
-            "routine": {
-              "id": `${routineId}`
-            },
-            "routineSchedule": {
-              "id": `${ubications.id}`
-            },
-            'routineTimePoint': `${timeIni[0]}:${minRest}:00`
-          });
-          registerEntity(raw, 'RoutineTime');*/

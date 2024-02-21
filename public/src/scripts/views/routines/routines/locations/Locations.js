@@ -155,6 +155,9 @@ export class Locations {
           <td>${location?.frequency ?? 0}</dt>
           <td>${location?.distance ?? 0}</dt>
           <td class="entity_options">
+          <button class="button" id="view-entity" data-entityId="${location.id}">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </button>
           <button class="button" id="edit-entity" data-entityId="${location.id}">
             <i class="fa-solid fa-pen"></i>
           </button>
@@ -168,6 +171,7 @@ export class Locations {
         }
         this.register();
         this.edit(this.entityDialogContainer, data);
+        this.selectModal();
         this.remove();
 
     }
@@ -772,6 +776,108 @@ export class Locations {
             });
         });
     }
+    selectModal() {
+      // register entity
+      const view = document.querySelectorAll('#view-entity');
+      view.forEach((element) => {
+        const entityId = element.dataset.entityid;
+        element.addEventListener('click', () => {
+          modalTable(0, entityId);
+        });
+      });
+      async function modalTable(offset, id) {
+        const dialogContainer = document.getElementById('app-dialogs');
+        //const guards = await getDetails('routine.id', routine.id, 'RoutineUser');
+        let raw = JSON.stringify({
+            "filter": {
+                "conditions": [
+                    {
+                        "property": "routineSchedule.id",
+                        "operator": "=",
+                        "value": `${id}`
+                    }
+                ],
+            },
+            sort: "+routineTimePoint",
+            limit: Config.modalRows,
+            offset: offset
+        });
+        let dataModal = await getFilterEntityData("RoutineTime", raw);
+        dialogContainer.style.display = 'block';
+        dialogContainer.innerHTML = `
+              <div class="dialog_content" id="dialog-content">
+                  <div class="dialog">
+                      <div class="dialog_container padding_8">
+                          <div class="dialog_header">
+                              <h2>Tiempos Calculados</h2>
+                          </div>
+
+                          <div class="dialog_message padding_8">
+                              <div class="dashboard_datatable">
+                                  <table class="datatable_content margin_t_16">
+                                  <thead>
+                                      <tr>
+                                      <th>Tiempo</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody id="datatable-modal-body">
+                                  </tbody>
+                                  </table>
+                              </div>
+                              <br>
+                          </div>
+
+                          <div class="dialog_footer">
+                              <button class="btn btn_primary" id="prevModal"><i class="fa-solid fa-arrow-left"></i></button>
+                              <button class="btn btn_primary" id="nextModal"><i class="fa-solid fa-arrow-right"></i></button>
+                              <button class="btn btn_danger" id="cancel">Cancelar</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          `;
+        inputObserver();
+        const datetableBody = document.getElementById('datatable-modal-body');
+        if (dataModal.length === 0) {
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                  <td>No hay datos</td>
+                  <td></td>
+                  <td></td>
+              `;
+            datetableBody.appendChild(row);
+        }
+        else {
+            for (let i = 0; i < dataModal.length; i++) {
+                let time = dataModal[i];
+                let row = document.createElement('tr');
+                row.innerHTML += `
+                    <td>${time?.routineTimePoint ?? ''}</td>
+                `;
+                datetableBody.appendChild(row);
+            }
+        }
+        const _closeButton = document.getElementById('cancel');
+        const _dialog = document.getElementById('dialog-content');
+        const prevModalButton = document.getElementById('prevModal');
+        const nextModalButton = document.getElementById('nextModal');
+
+        _closeButton.onclick = () => {
+            new CloseDialog().x(_dialog);
+        };
+        nextModalButton.onclick = () => {
+            offset = Config.modalRows + (offset);
+            modalTable(offset, id);
+        };
+        prevModalButton.onclick = () => {
+            if(offset > 0){
+              offset = offset - Config.modalRows;
+              modalTable(offset, id);
+            }
+        };
+    }
+
+  }
     close() {
         const closeButton = document.getElementById('close');
         const editor = document.getElementById('entity-editor-container');

@@ -461,8 +461,10 @@ export class RoutineUsers {
               modalTable(offset, search);
           };
           prevModalButton.onclick = () => {
-              offset = Config.modalRows - (offset);
-              modalTable(offset, search);
+            if(offset > 0){
+                offset = offset - Config.modalRows;
+                modalTable(offset, search);
+            }
           };
       }
 

@@ -127,7 +127,7 @@ export class Locations {
     }
 
     load(table, currentPage, data) {
-        //createRoutines('INS', routine.id)
+        createRoutines('INS', routine.id, null);
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -155,6 +155,9 @@ export class Locations {
           <td>${location?.frequency ?? 0}</dt>
           <td>${location?.distance ?? 0}</dt>
           <td class="entity_options">
+          <button class="button" id="view-entity" data-entityId="${location.id}">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </button>
           <button class="button" id="edit-entity" data-entityId="${location.id}">
             <i class="fa-solid fa-pen"></i>
           </button>
@@ -168,6 +171,7 @@ export class Locations {
         }
         this.register();
         this.edit(this.entityDialogContainer, data);
+        this.selectModal();
         this.remove();
 
     }
@@ -579,7 +583,7 @@ export class Locations {
                 level: "H", // Puede ser L,M,Q y H (L es el de menor nivel, H el mayor)
             });
             download(qr, data);
-          UUpdate(entityID);
+          UUpdate(entityID, data);
       };
       const download = (qr, data) => {
         const btnDescargar = document.getElementById('btnDescargar');
@@ -590,7 +594,7 @@ export class Locations {
             enlace.click();
         });
     };
-      const UUpdate = async (entityId) => {
+      const UUpdate = async (entityId, data) => {
           const updateButton = document.getElementById('update-changes');
           const $value = {
             // @ts-ignore
@@ -656,9 +660,11 @@ export class Locations {
             updateEntity('RoutineSchedule', entityId, raw)
                 .then((res) => {
                 setTimeout(async () => {
+                    if($value.frequency.value != data.frequency || $value.scheduleTime.value != data?.scheduleTime || $value.scheduleTimeEnd.value != data?.scheduleTimeEnd)
+                      createRoutines('UPD', routine.id, entityId);
                     let tableBody;
                     let container;
-                    let data;
+                    //let data;
                     //data = await getLocations();
                     new CloseDialog()
                         .x(container =
@@ -770,6 +776,108 @@ export class Locations {
             });
         });
     }
+    selectModal() {
+      // register entity
+      const view = document.querySelectorAll('#view-entity');
+      view.forEach((element) => {
+        const entityId = element.dataset.entityid;
+        element.addEventListener('click', () => {
+          modalTable(0, entityId);
+        });
+      });
+      async function modalTable(offset, id) {
+        const dialogContainer = document.getElementById('app-dialogs');
+        //const guards = await getDetails('routine.id', routine.id, 'RoutineUser');
+        let raw = JSON.stringify({
+            "filter": {
+                "conditions": [
+                    {
+                        "property": "routineSchedule.id",
+                        "operator": "=",
+                        "value": `${id}`
+                    }
+                ],
+            },
+            sort: "+routineTimePoint",
+            limit: Config.modalRows,
+            offset: offset
+        });
+        let dataModal = await getFilterEntityData("RoutineTime", raw);
+        dialogContainer.style.display = 'block';
+        dialogContainer.innerHTML = `
+              <div class="dialog_content" id="dialog-content">
+                  <div class="dialog">
+                      <div class="dialog_container padding_8">
+                          <div class="dialog_header">
+                              <h2>Tiempos Calculados</h2>
+                          </div>
+
+                          <div class="dialog_message padding_8">
+                              <div class="dashboard_datatable">
+                                  <table class="datatable_content margin_t_16">
+                                  <thead>
+                                      <tr>
+                                      <th>Tiempo</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody id="datatable-modal-body">
+                                  </tbody>
+                                  </table>
+                              </div>
+                              <br>
+                          </div>
+
+                          <div class="dialog_footer">
+                              <button class="btn btn_primary" id="prevModal"><i class="fa-solid fa-arrow-left"></i></button>
+                              <button class="btn btn_primary" id="nextModal"><i class="fa-solid fa-arrow-right"></i></button>
+                              <button class="btn btn_danger" id="cancel">Cancelar</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          `;
+        inputObserver();
+        const datetableBody = document.getElementById('datatable-modal-body');
+        if (dataModal.length === 0) {
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                  <td>No hay datos</td>
+                  <td></td>
+                  <td></td>
+              `;
+            datetableBody.appendChild(row);
+        }
+        else {
+            for (let i = 0; i < dataModal.length; i++) {
+                let time = dataModal[i];
+                let row = document.createElement('tr');
+                row.innerHTML += `
+                    <td>${time?.routineTimePoint ?? ''}</td>
+                `;
+                datetableBody.appendChild(row);
+            }
+        }
+        const _closeButton = document.getElementById('cancel');
+        const _dialog = document.getElementById('dialog-content');
+        const prevModalButton = document.getElementById('prevModal');
+        const nextModalButton = document.getElementById('nextModal');
+
+        _closeButton.onclick = () => {
+            new CloseDialog().x(_dialog);
+        };
+        nextModalButton.onclick = () => {
+            offset = Config.modalRows + (offset);
+            modalTable(offset, id);
+        };
+        prevModalButton.onclick = () => {
+            if(offset > 0){
+              offset = offset - Config.modalRows;
+              modalTable(offset, id);
+            }
+        };
+    }
+
+  }
     close() {
         const closeButton = document.getElementById('close');
         const editor = document.getElementById('entity-editor-container');
@@ -818,38 +926,30 @@ export class Locations {
     console.time(FNewUsers);
     console.groupEnd();
 };*/
-/*const createRoutines = async (mode, routineId) => {
-  const insertTimes = (ubications) => {
-    console.log(ubications.scheduleTime);
-    console.log(ubications.scheduleTimeEnd);
-    const timeIni = ubications.scheduleTime.split(":");
-    const timeEnd = ubications.scheduleTimeEnd.split(":");
-    //console.log(timeIni[0]);
-    ////console.log(timeIni[1]);
-    //console.log(ubications.frequency);
-    //console.log(parseInt(timeIni[1]) + ubications.frequency);
-    if(timeEnd[0] <= 9 && timeIni[0] > timeEnd[0]){
-      console.log("caso 1");
-      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
-      const limit = equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]);
-    }else if(timeEnd[0] >= 10 && timeIni[0] > timeEnd[0]){
-      console.log("caso 2");
-      console.log(equivalentTime(timeEnd[0]) - equivalentTime(timeIni[0]));
-    }else if(timeIni[0] < timeEnd[0]){
-      console.log("caso 3");
-    }else if(timeIni[0] == timeEnd[0]){
-      console.log("caso 4");
-    }
-    /*do {
-      i = i + 1;
-      result = result + i;
-    } while (timeEnd[] < 5);*/
-    /*let total = parseInt(timeIni[1]) + ubications.frequency;
 
-    if(total > 59){
-      let minRest = total - 60; //minutos restantes
-      if(minRest < 10) minRest = "0"+minRest;
-      console.log("minrest "+minRest);
+/*if(timeIni[0] > timeEnd[0]){
+  console.log("caso 1");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}else if(timeIni[0] < timeEnd[0]){
+  console.log("caso 2");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}else if(timeIni[0] == timeEnd[0]){
+  console.log("caso 3");
+  let schedules = calculoTimes(ubications, timeIni, timeEnd);
+  console.log(schedules);
+}*/
+const agregarCero = (valor) => {
+  valor < 10 ? valor = "0"+valor : valor;
+  return valor;
+}
+
+const createRoutines = async (mode, routineId, scheduleId) => {
+  const insertTimes = (ubications) => {
+    const schedules = calculoTimes(ubications);
+    console.log(schedules);
+    schedules.forEach(async (schedule) => {
       const raw = JSON.stringify({ 
         "business": {
             "id": `${ubications.business.id}`
@@ -863,14 +963,68 @@ export class Locations {
         "routineSchedule": {
           "id": `${ubications.id}`
         },
-        'routineTimePoint': `${timeIni[0]}:${minRest}:00`
+        'routineTimePoint': `${schedule}`
       });
       registerEntity(raw, 'RoutineTime');
-    }*/
-  /*}
-
-  const deleteTimes = () => {
+    });
     
+  }
+
+  const deleteTimes = (times) => {
+    for(let i=0; i<times.length; i++){
+      deleteEntity('RoutineTime', times[i].id);
+    }
+  }
+
+  const calculoTimes = (ubications) => {
+    let timesResults = [];
+    const timeIni = ubications.scheduleTime.split(":");
+    const timeEnd = ubications.scheduleTimeEnd.split(":");
+    timesResults.push(ubications.scheduleTime);
+    let minAdd = timeIni[1];
+    let minRest = 0;
+    let hourAdd = 0;
+    let validators; 
+    let releaseHour = false;
+    let releaseMin = false;
+    let i = 0;
+    do {
+      minAdd = parseInt(minAdd) + ubications.frequency;
+      validators = timesResults[i].split(":");
+      if((equivalentTime(timeEnd[0]) == equivalentTime(validators[0])) && releaseHour == false){
+        releaseHour = true;
+      }
+
+      if(releaseHour == true && (minAdd > parseInt(timeEnd[1]))){
+        releaseMin = true;
+      }else{
+        if(parseInt(minAdd) > 59){
+          minRest = minAdd - 60; //minutos restantes
+          hourAdd += 1;
+          minAdd = minRest;
+          if((parseInt(timeIni[0]) + hourAdd) > 24){
+            timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd)-24)+":"+agregarCero(minRest)+":00");
+          }else if((parseInt(timeIni[0]) + hourAdd) == 24){
+            timesResults.push(agregarCero(equivalentTime(parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minRest)+":00");
+          }else{
+            timesResults.push(agregarCero(parseInt(timeIni[0]) + hourAdd)+":"+agregarCero(minRest)+":00");
+          }
+
+          
+        }else{
+          if((parseInt(timeIni[0]) + hourAdd) > 24){
+            timesResults.push(agregarCero((parseInt(timeIni[0]) + hourAdd)-24)+":"+agregarCero(minAdd)+":00");
+          }else if((parseInt(timeIni[0]) + hourAdd) == 24){
+            timesResults.push(agregarCero(equivalentTime(parseInt(timeIni[0]) + hourAdd))+":"+agregarCero(minAdd)+":00");
+          }else{
+            timesResults.push(agregarCero(parseInt(timeIni[0]) + hourAdd)+":"+agregarCero(minAdd)+":00");
+          }
+        }
+        i+=1;
+      }
+      
+    } while (releaseMin != true);
+    return timesResults;
   }
 
   if(mode == 'INS'){
@@ -893,5 +1047,24 @@ export class Locations {
         insertTimes(ubications);
       }
     });
+  }else if(mode == 'UPD'){
+    const data = await getEntityData("RoutineSchedule", scheduleId);
+    let raw = JSON.stringify({
+      "filter": {
+          "conditions": [
+              {
+                "property": "routineSchedule.id",
+                "operator": "=",
+                "value": `${scheduleId}`
+              },
+          ],
+      },
+      sort: "-createdDate",
+    });
+    let times = await getFilterEntityData("RoutineTime", raw);
+    if(times != undefined && times.length != 0){
+      deleteTimes(times);
+      insertTimes(data);
+    }
   }
-};*/
+};

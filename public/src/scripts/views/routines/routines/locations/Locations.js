@@ -424,6 +424,7 @@ export class Locations {
           //var map = new google.maps.Map(document.getElementById('map'), {
           var marker1;
           const { Map } = await google.maps.importLibrary("maps");
+          const { AdvancedMarkerElement } = await google.maps.importLibrary("marker")
     
           var map = new Map(document.getElementById("map"), {
             center: {
@@ -431,6 +432,7 @@ export class Locations {
               lng: lng
             },
             zoom: zoom,
+            mapId: Config.mapIdGM,
             mapTypeId: 'hybrid'
           });
     
@@ -448,9 +450,16 @@ export class Locations {
                 let location = event.latLng;
                 //console.log(location)
                 if (marker1) {
-                    marker1.setPosition(location);
+                    //marker1.setPosition(location);
+                    marker1.map = null;
+                    marker1 = new AdvancedMarkerElement({
+                        position: location,
+                        map: map,
+                        title: 'Mi marcador'
+                    });
                   } else {
-                    marker1 = new google.maps.Marker({
+                    //marker1 = new google.maps.Marker({
+                    marker1 = new AdvancedMarkerElement({
                         position: location,
                         map: map,
                         title: 'Mi marcador'
@@ -570,7 +579,7 @@ export class Locations {
           inputObserver();
           document.getElementById("entity-distance").value = data?.distance;
           document.getElementById("entity-frequency").value = data?.frequency;
-          initAutocomplete(latitud, longitud, 20);
+          initAutocomplete(latitud, longitud, 20, data);
           this.close();
           const qr = document.getElementById("qrcode");
             // @ts-ignore
@@ -649,7 +658,7 @@ export class Locations {
                     var longitud = results[0].geometry.location.lng();
                     //console.log('Latitud: ' + latitud);
                     //console.log('Longitud: ' + longitud);
-                    initAutocomplete(latitud, longitud, 20);
+                    initAutocomplete(latitud, longitud, 20, data);
                 } else {
                     //console.log('Geocodificación fallida: ' + status);
                     alert("No encontrado "+status);
@@ -676,18 +685,19 @@ export class Locations {
             });
         };
       };
-      async function initAutocomplete(lat, lng, zoom) {
+      async function initAutocomplete(lat, lng, zoom, data) {
         //var map = new google.maps.Map(document.getElementById('map'), {
         var marker1;
         var marker2;
         const { Map } = await google.maps.importLibrary("maps");
-  
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker")
         var map = new Map(document.getElementById("map"), {
           center: {
             lat: lat,
             lng: lng
           },
           zoom: zoom,
+          mapId: Config.mapIdGM,
           mapTypeId: 'hybrid'
         });
   
@@ -705,9 +715,16 @@ export class Locations {
               let location = event.latLng;
               //console.log(location)
               if (marker1) {
-                  marker1.setPosition(location);
+                  //marker1.setPosition(location);
+                  marker1.map = null;
+                  marker1 = new AdvancedMarkerElement({
+                      position: location,
+                      map: map,
+                      title: 'Mi marcador'
+                  });
                 } else {
-                  marker1 = new google.maps.Marker({
+                  //marker1 = new google.maps.Marker({
+                  marker1 = new AdvancedMarkerElement({
                       position: location,
                       map: map,
                       title: 'Mi marcador'
@@ -717,7 +734,8 @@ export class Locations {
                 cords.classList.add('input_filled');
                 cords.setAttribute('value', `${location.lat()}, ${location.lng()}`);
                 if(marker2 != undefined)
-                  marker2.setMap(null);
+                  marker2.map = null;
+                  //marker2.setMap(null);
                 //var latitud = location.lat();
                 //var longitud = location.lng();
                 //console.log('Latitud2: ' + latitud);
@@ -725,13 +743,19 @@ export class Locations {
       
           });
           if(lat != "" || lng != ""){
-              const myLatLng = { lat: lat, lng: lng };
-              marker2 =  new google.maps.Marker({
-                position: myLatLng,
-                map,
-                title: "Posición Actual",
-                });
-                marker2.setMap(map);
+            let myLatLng = { lat: lat, lng: lng };
+            const latitude = parseFloat(data.latitude);
+            const longitude = parseFloat(data.longitude);
+            if(lat != latitude && lng != longitude){
+              myLatLng = { lat: latitude, lng: longitude };
+            }
+            //marker2 =  new google.maps.Marker({
+            marker2 = new AdvancedMarkerElement({
+              position: myLatLng,
+              map,
+              title: "Posición Actual",
+              });
+              //marker2.setMap(map);
             }
         } 
   }

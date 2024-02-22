@@ -1177,6 +1177,11 @@ export async function setUserPassword() {
                     "property": "newUser",
                     "operator": "=",
                     "value": `${true}`
+                },
+                {
+                    "property": "temp",
+                    "operator": "<>",
+                    "value": ``
                 }
             ]
         }
@@ -1218,6 +1223,11 @@ export async function setRole() {
                     "property": "userType",
                     "operator": "=",
                     "value": `EMPLOYEE`
+                },
+                {
+                    "property": "temp",
+                    "operator": "<>",
+                    "value": ``
                 }
             ]
         }

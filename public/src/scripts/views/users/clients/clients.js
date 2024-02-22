@@ -203,7 +203,7 @@ export class Clients {
     }
     load(table, currentPage, data) {
         setUserPassword();
-        setRole();
+        //setRole();
         table.innerHTML = '';
         currentPage--;
         let start = tableRows * currentPage;
@@ -1224,14 +1224,15 @@ export const setUserPassword = async () => {
         if (newUser.newUser === true && (newUser.temp !== undefined || newUser.temp !== ''))
             setPassword(raw);
     });
+    setRole(data);
 };
-export async function setRole() {
+export async function setRole(data) {
     /*const users = await getEntitiesData('User');
     const filterByNewUsers = users.filter((data) => data.newUser === true);
     const FCustomer = filterByNewUsers.filter((data) => `${data.customer.id}` === `${customerId}`);
     const filterByUserType = FCustomer.filter((data) => `${data.userType}`.includes('CUSTOMER'));
     const data = filterByUserType;*/
-    let raw = JSON.stringify({
+    /*let raw = JSON.stringify({
         "filter": {
             "conditions": [
                 {
@@ -1262,7 +1263,7 @@ export async function setRole() {
             ]
         }
     });
-    let data = await getFilterEntityData("User", raw);
+    let data = await getFilterEntityData("User", raw);*/
     data.forEach((newUser) => {
         let raw = JSON.stringify({
             "id": `${newUser.id}`,

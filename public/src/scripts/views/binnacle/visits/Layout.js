@@ -37,6 +37,10 @@ export const UIContentLayout = `
             Hora <i class="fa-regular fa-filter"></i>
             </span></th>
 
+            <th><span data-type="EGRESS">
+            Salida <i class="fa-regular fa-filter"></i>
+            </span></th>
+
             <th class="thead_centered" width=150><span data-type="citadel">
             Generado por <i class="fa-regular fa-filter"></i>
             </span></th>
@@ -169,6 +173,8 @@ export const UIRightSidebar = `
         <label for="egress-guard-name"><i class="fa-solid fa-user-police"></i></label>
         <input type="text" id="egress-guard-name" class="input_filled" readonly>
     </div>
+    <br>
+    <p id="moreInfo" style="color:red;"></p>
     <br>
     <h3>Galería</h3>
 

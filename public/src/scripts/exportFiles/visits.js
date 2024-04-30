@@ -134,14 +134,14 @@ export const exportVisitXls = (ar, start, end) => {
         let visit = ar[i];
         // @ts-ignore
         //if (visit.creationDate >= start && visit.creationDate <= end) {
-            let moreInfo = '';
+            let diff = '';
             if(visit?.type === "Cliente"){
                 if ((visit?.notificationDate ?? "" != "") && visit?.visitState?.name == 'Finalizado') {
                     let horaSalida = new Date(`${visit?.egressDate ?? ''}T${visit?.egressTime ?? ''}`);
                     let horaExpira = new Date(`${visit?.notificationDate ?? ''}T${visit?.notificationTime ?? ''}`);
                     if (horaSalida.getTime() > horaExpira.getTime()) {
-                        const diff = calcDates(horaExpira, horaSalida);
-                        moreInfo = `Atraso ${diff.days} día(s) ${diff.hours} hora(s) ${diff.minutes} minuto(s) ${diff.seconds} segundo(s).`;
+                        diff = calcDates(horaExpira, horaSalida);
+                        //moreInfo = `Atraso ${diff.days} día(s) ${diff.hours} hora(s) ${diff.minutes} minuto(s) ${diff.seconds} segundo(s).`;
                     }
                 }
             }
@@ -165,7 +165,10 @@ export const exportVisitXls = (ar, start, end) => {
                 "Hora Salida": `${visit?.egressTime ?? ''}`,
                 "Emitido Salida": `${visit.egressIssuedId?.firstName ?? ''} ${visit.egressIssuedId?.lastName ?? ''}`,
                 "Asunto": `${visit.reason.split("\n").join("(salto)")}`,
-                'Anotación':`${moreInfo}`
+                'Anotación':`${diff != '' ? 'Atraso' : ''}`,
+                'Días':`${diff?.days ?? ''}`,
+                'Horas':`${diff?.hours ?? ''}`,
+                'Minutos':`${diff?.minutes ?? ''}`
             };
             rows.push(obj);
         //}

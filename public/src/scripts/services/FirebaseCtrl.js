@@ -33,7 +33,7 @@ export class FirebaseCtrl {
             }
             //navigator.serviceWorker.register("./public/src/scripts/services/firebase-messaging-sw.js");
             if ("serviceWorker" in navigator) {
-                const serviceWorkerRegistration = await navigator.serviceWorker.register('/netguard/firebase-messaging-sw.js', {scope: "/netguard/"}).catch((error) => {
+                const serviceWorkerRegistration = await navigator.serviceWorker.register('/netguardV2/firebase-messaging-sw.js', {scope: "/netguardV2/"}).catch((error) => {
                     console.error(`Service worker registration failed: ${error}`);
                 });
     

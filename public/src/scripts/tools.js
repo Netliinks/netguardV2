@@ -346,7 +346,7 @@ export const registryPlataform = async (id) => {
             "id": `${platUser.customer.id}`
         },
         "system": {
-            "id": `8d457eb2-fe46-5797-7203-55aaa1813010`
+            "id": `67381fa3-992b-c4a4-be9b-b6c0a436e749`
         },
         "user": {
             "id": `${platUser.id}`
